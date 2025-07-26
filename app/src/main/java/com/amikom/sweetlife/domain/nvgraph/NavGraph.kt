@@ -14,8 +14,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.amikom.sweetlife.domain.manager.SessionViewModel
+import com.amikom.sweetlife.domain.nvgraph.Route.ChatScreenBot
+import com.amikom.sweetlife.domain.nvgraph.Route.FoodRekomenScreen
 import com.amikom.sweetlife.ui.presentation.onboarding.OnBoardingScreen
 import com.amikom.sweetlife.ui.presentation.onboarding.OnBoardingViewModel
+import com.amikom.sweetlife.ui.screen.Chatbot.ChatBotScreen
+import com.amikom.sweetlife.ui.screen.Chatbot.ChatBotViewModel
 import com.amikom.sweetlife.ui.screen.History.HistoryScreen
 import com.amikom.sweetlife.ui.screen.History.HistoryViewModel
 import com.amikom.sweetlife.ui.screen.assesment.AssessmentScreen
@@ -146,6 +150,11 @@ fun NavGraph(
             ExerciseRekomenScreen(viewModel = viewModel, navController = navController)
         }
 
+        composable<Route.ChatScreenBot> {
+            val viewModel: ChatBotViewModel = hiltViewModel()
+            val userId by sessionViewModel.userId.collectAsState()
+            ChatBotScreen(viewModel = viewModel)
+        }
 
         composable<Route.FoodRekomenScreen> {
             val viewModel: RekomenViewModel = hiltViewModel()

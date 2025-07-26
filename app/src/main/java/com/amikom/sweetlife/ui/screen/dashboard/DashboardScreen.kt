@@ -159,7 +159,7 @@ fun DashboardScreenUI(data: Data, navController: NavController) {
         },
         floatingActionButton = {
             androidx.compose.material3.FloatingActionButton(
-                onClick = { navController.navigate(Route.ChatScreen) }, // Ganti dengan route tujuan
+                onClick = { navController.navigate(Route.ChatScreenBot) }, // Ganti dengan route tujuan
             ) {
                 androidx.compose.material3.Icon(
                     painter = painterResource(id = R.drawable.bapak), // Ganti dengan icon yang kamu punya

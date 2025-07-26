@@ -1,0 +1,52 @@
+package com.amikom.sweetlife.ui.screen.Chatbot
+
+import android.util.Log
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.amikom.sweetlife.data.remote.retrofit.ChatbotRequest
+import com.amikom.sweetlife.domain.repository.ChatbotRepository
+import com.amikom.sweetlife.domain.usecases.auth.AuthUseCases
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+data class ChatMessage(
+    val message: String,
+    val isFromUser: Boolean
+)
+
+
+@HiltViewModel
+class ChatBotViewModel @Inject constructor(
+    private val repository: ChatbotRepository,
+    private val authUseCases: AuthUseCases
+) : ViewModel() {
+
+    private val _response = MutableStateFlow<String?>(null)
+    val response: StateFlow<String?> = _response
+    private val _chatHistory = MutableStateFlow<List<ChatMessage>>(emptyList())
+    val chatHistory: StateFlow<List<ChatMessage>> = _chatHistory
+
+    fun sendMessage(msg: String) {
+        viewModelScope.launch {
+            _chatHistory.value += ChatMessage(msg, isFromUser = true)
+            authUseCases.readUserAllToken().collect { tokenList ->
+                val userId = tokenList.firstOrNull { it.first == "userToken" }?.second
+                if (userId.isNullOrEmpty()) {
+                    _response.value = "Error: User ID is missing"
+                    return@collect
+                }
+                try {
+                    val result = repository.sendMessage(userId, ChatbotRequest(msg))
+                    _chatHistory.value += ChatMessage(result.output, isFromUser = false)
+                    _response.value = result.output
+                } catch (e: Exception) {
+                    _response.value = "Error: ${e.localizedMessage ?: "Unknown error"}"
+                }
+            }
+        }
+    }
+
+}

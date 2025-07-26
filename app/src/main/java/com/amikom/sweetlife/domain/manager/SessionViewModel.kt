@@ -9,4 +9,5 @@ class SessionViewModel @Inject constructor(
     private val sessionManager: SessionManager
 ) : ViewModel() {
     val isUserLoggedOut = sessionManager.isUserLoggedOut
+    val userId = sessionManager.userId
 }

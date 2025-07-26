@@ -16,9 +16,15 @@ class SessionManager @Inject constructor(
     private val localAuthUserManager: LocalAuthUserManager
 ) {
     val isUserLoggedOut = MutableStateFlow(false)
+    private val _userId = MutableStateFlow<String?>(null)
+    val userId: StateFlow<String?> = _userId
 
     init {
         observeLogout()
+    }
+
+    fun setUserId(id: String) {
+       _userId.value = id
     }
 
     private fun observeLogout() {

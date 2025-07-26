@@ -36,7 +36,6 @@ class MainViewModel @Inject constructor(
     private val isUserLoggedIn: StateFlow<Boolean> = _isUserLoggedIn
 
     private val _isDarkMode = MutableStateFlow(false)
-//    val isDarkMode = _isDarkMode.asStateFlow()
     val isDarkMode = _isDarkMode.asLiveData()
 
     init {

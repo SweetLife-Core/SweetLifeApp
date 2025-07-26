@@ -58,5 +58,5 @@ sealed class Route {
     data object ExerciseRekomenScreen: Route()
 
     @Serializable
-    data object ChatScreen: Route()
+    data object ChatScreenBot: Route()
 }

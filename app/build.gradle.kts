@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("kotlin-android")
 
+
     // Nav
     alias(libs.plugins.kotlin.serialization)
 
@@ -30,6 +31,7 @@ android {
         // API BASE URL
         buildConfigField("String", "BASE_URL_DEV", "\"https://api.sweetlife.my.id/\"")
         buildConfigField("String", "BASE_URL_PROD", "\"https://api.sweetlife.my.id/\"")
+        buildConfigField("String", "BASE_URL_CHAT", "\"https://n8n.sweetlife.my.id/\"")
     }
 
     buildTypes {
@@ -82,6 +84,12 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    //room
+    implementation ("androidx.room:room-runtime:2.6.1")
+    kapt ("androidx.room:room-compiler:2.6.1")
+    implementation ("androidx.room:room-ktx:2.6.1")
+
 
     // SplashScreen
     implementation(libs.androidx.core.splashscreen)
