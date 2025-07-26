@@ -33,10 +33,6 @@ class RekomenViewModel @Inject constructor(
     private val _exerciseRecommendations = MutableLiveData<ExerciseRecommendations?>()
     val exerciseRecommendations: LiveData<ExerciseRecommendations?> = _exerciseRecommendations
 
-
-//    private val _exerciseRecommendations = MutableLiveData<List<ExerciseRecommendations>>()
-//    val exerciseRecommendations: LiveData<List<ExerciseRecommendations>> = _exerciseRecommendations
-
     fun fetchRekomend() {
         viewModelScope.launch {
             _isLoading.postValue(true)

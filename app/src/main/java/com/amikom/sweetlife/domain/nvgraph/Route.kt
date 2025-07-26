@@ -29,9 +29,6 @@ sealed class Route {
     data object ProfileScreen: Route()
 
     @Serializable
-    data object RekomenScreen: Route()
-
-    @Serializable
     data object HistoryScreen: Route()
 
     @Serializable
@@ -53,4 +50,13 @@ sealed class Route {
     data class ResultScanScreen(
         val listFood: String
     ) : Route()
+
+    @Serializable
+    data object FoodRekomenScreen: Route()
+
+    @Serializable
+    data object ExerciseRekomenScreen: Route()
+
+    @Serializable
+    data object ChatScreen: Route()
 }

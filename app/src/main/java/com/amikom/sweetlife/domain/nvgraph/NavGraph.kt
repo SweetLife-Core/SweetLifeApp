@@ -37,6 +37,8 @@ import com.amikom.sweetlife.ui.screen.profile.UserProfileScreen
 import com.amikom.sweetlife.ui.screen.profile.editProfile.EditProfileScreen
 import com.amikom.sweetlife.ui.screen.profile.editProfile.EditProfileViewModel
 import com.amikom.sweetlife.ui.screen.profile.settings.SettingsScreen
+import com.amikom.sweetlife.ui.screen.rekomend.ExerciseRekomenScreen
+import com.amikom.sweetlife.ui.screen.rekomend.FoodRekomenScreen
 import com.amikom.sweetlife.ui.screen.rekomend.RekomenScreen
 import com.amikom.sweetlife.ui.screen.rekomend.RekomenViewModel
 import com.amikom.sweetlife.ui.screen.scan.CameraScanViewModel
@@ -104,11 +106,6 @@ fun NavGraph(
             DashboardScreen(viewModel = dashboardViewModel, navController = navController)
         }
 
-        composable<Route.RekomenScreen> {
-            val viewModel: RekomenViewModel = hiltViewModel()
-            RekomenScreen(viewModel = viewModel, navController = navController)
-        }
-
         composable<Route.EditProfileScreen> {
             val EditProfileViewModel: EditProfileViewModel = hiltViewModel()
             EditProfileScreen(
@@ -142,6 +139,17 @@ fun NavGraph(
                 viewModel = viewModel,
                 navController = navController
             )
+        }
+
+        composable<Route.ExerciseRekomenScreen> {
+            val viewModel: RekomenViewModel = hiltViewModel()
+            ExerciseRekomenScreen(viewModel = viewModel, navController = navController)
+        }
+
+
+        composable<Route.FoodRekomenScreen> {
+            val viewModel: RekomenViewModel = hiltViewModel()
+            FoodRekomenScreen(viewModel = viewModel, navController = navController)
         }
 
         composable<Route.CameraScreen> {

@@ -48,17 +48,25 @@ import com.amikom.sweetlife.domain.nvgraph.Route
 import com.amikom.sweetlife.ui.component.BottomNavigationBar
 import com.amikom.sweetlife.ui.component.getBottomNavButtons
 import com.amikom.sweetlife.util.Constants
+import me.rmyhal.contentment.Contentment
+
+sealed class RekomenUiState {
+    object Loading : RekomenUiState()
+    data class Loaded(
+        val foodRecommendations: List<FoodRecommendation>,
+        val exerciseRecommendations: ExerciseRecommendations?
+    ) : RekomenUiState()
+    data class Failed(val error: String?) : RekomenUiState()
+}
 
 @Composable
 fun RekomenScreen(
     viewModel: RekomenViewModel = hiltViewModel(),
     navController: NavController
 ) {
-
     LaunchedEffect(Unit) {
         viewModel.fetchRekomend()
     }
-
     val selectedIndex = Constants.CURRENT_BOTTOM_BAR_PAGE_ID
     val buttons = getBottomNavButtons(selectedIndex, navController)
     val foodRecommendations by viewModel.foodRecommendations.observeAsState(emptyList())
@@ -68,10 +76,15 @@ fun RekomenScreen(
     var selectedTabIndex by remember { mutableStateOf(0) }
     val tabTitles = listOf("Foods", "Exercises")
 
+    val uiState = when {
+        isLoading -> RekomenUiState.Loading
+        error != null -> RekomenUiState.Failed(error)
+        else -> RekomenUiState.Loaded(foodRecommendations, exerciseRecommendations.value)
+    }
 
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(buttons = buttons, navController = navController, currentScreen = Route.RekomenScreen)
+            BottomNavigationBar(buttons = buttons, navController = navController, currentScreen = Route.FoodRekomenScreen)
         },
         modifier = Modifier.fillMaxSize().navigationBarsPadding(),
     ) { fillMaxSize ->
@@ -84,46 +97,13 @@ fun RekomenScreen(
                 tabTitles.forEachIndexed { index, title ->
                     Tab(
                         selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
+                        onClick = {
+                            selectedTabIndex = index
+                            if (index == 0) navController.navigate(Route.FoodRekomenScreen)
+                            else navController.navigate(Route.ExerciseRekomenScreen)
+                        },
                         text = { Text(text = title) }
                     )
-                }
-            }
-
-            Box(modifier = Modifier.fillMaxSize()) {
-                when {
-                    isLoading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    error != null -> Text(
-                        text = error ?: "Unknown error",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-
-                    selectedTabIndex == 0 && foodRecommendations.isEmpty() -> Text(
-                        text = "No food recommendations available",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-
-                    selectedTabIndex == 1 && exerciseRecommendations.value == null -> Text(
-                        text = "No exercise recommendations available",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-
-                    else -> LazyColumn(modifier = Modifier.fillMaxSize().padding(bottom = 70.dp)) {
-                        if (selectedTabIndex == 0) {
-                            items(foodRecommendations) { food ->
-                                RekomendItemFood(food)
-                            }
-                        }
-                        if (selectedTabIndex == 1) {
-                            val exerciseList = exerciseRecommendations.value?.exerciseList ?: emptyList()
-                            items(exerciseList) { exercise ->
-                                RekomendItemExec(exercise = exercise)
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -162,6 +142,7 @@ fun RekomendItemFood(item: FoodRecommendation) {
         }
     }
 }
+
 @Composable
 fun RekomendItemExec(exercise: Exercise) {
     Spacer(modifier = Modifier.height(10.dp))
@@ -200,4 +181,3 @@ fun RekomendItemExec(exercise: Exercise) {
         }
     }
 }
-

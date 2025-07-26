@@ -1,26 +1,36 @@
 package com.amikom.sweetlife.ui.screen.dashboard
 
+import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -46,9 +56,19 @@ import com.amikom.sweetlife.ui.component.BottomNavigationBar
 import com.amikom.sweetlife.ui.component.CustomDialog
 import com.amikom.sweetlife.ui.component.getBottomNavButtons
 import com.amikom.sweetlife.ui.component.rememberSelectedIndex
+import com.amikom.sweetlife.ui.screen.rekomend.RekomenViewModel
+import com.amikom.sweetlife.ui.screen.rekomend.RekomendItemExec
+import com.amikom.sweetlife.ui.screen.rekomend.RekomendItemFood
 import com.amikom.sweetlife.util.Constants
 import java.util.Locale
 import kotlin.math.ceil
+import me.rmyhal.contentment.Contentment
+
+sealed class DashboardUiState {
+    object Loading : DashboardUiState()
+    data class Loaded(val data: DashboardModel) : DashboardUiState()
+    data class Failed(val error: String?) : DashboardUiState()
+}
 
 @Composable
 fun DashboardScreen(
@@ -75,46 +95,47 @@ fun DashboardScreen(
         )
     }
 
-    when (dashboardData) {
-        is Result.Loading -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
+    val uiState = when {
+        dashboardData is Result.Loading -> DashboardUiState.Loading
+        dashboardData is Result.Error -> DashboardUiState.Failed((dashboardData as Result.Error).error)
+        dashboardData is Result.Success -> DashboardUiState.Loaded((dashboardData as Result.Success<DashboardModel>).data)
+        else -> DashboardUiState.Failed("Unknown error")
+    }
 
-        is Result.Success -> {
-            val data = (dashboardData as Result.Success<DashboardModel>).data
-            DashboardScreenUI(data.data, navController)
-        }
-
-        is Result.Error -> {
-//            val data = (dashboardData as Result.Success<DashboardModel>).data
-//            DashboardScreenUI(data.data, navController)
-            val errorText = (dashboardData as Result.Error).error
-            if(errorText == "Unauthorized") {
-                navController.navigate(Route.LoginScreen) {
-                    launchSingleTop = true
+    Contentment(
+        minShowTimeMillis = 700L,
+        delayMillis = 500L
+    ) {
+        when (uiState) {
+            is DashboardUiState.Loading -> indicator {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
             }
+            is DashboardUiState.Loaded -> content {
+                DashboardScreenUI(uiState.data.data, navController)
+            }
+            is DashboardUiState.Failed -> content {
+                val errorText = uiState.error
+                if(errorText == "Unauthorized") {
+                    navController.navigate(Route.LoginScreen) {
+                        launchSingleTop = true
+                    }
+                }
+                Text(
+                    text = errorText ?: "Unknown error",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.fillMaxSize().padding(16.dp),
+                    textAlign = TextAlign.Center,
+                )
+            }
 
-            Text(
-                text = errorText,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.fillMaxSize().padding(16.dp),
-                textAlign = TextAlign.Center,
-            )
-        }
+            else -> {
 
-        else -> {
-            Text(
-                text = "Unknown error",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.fillMaxSize().padding(16.dp),
-                textAlign = TextAlign.Center
-            )
+            }
         }
     }
 }
@@ -122,22 +143,47 @@ fun DashboardScreen(
 @Composable
 fun DashboardScreenUI(data: Data, navController: NavController) {
     Constants.CURRENT_BOTTOM_BAR_PAGE_ID = rememberSelectedIndex()
-
     val buttons = getBottomNavButtons(Constants.CURRENT_BOTTOM_BAR_PAGE_ID, navController)
+    val rekomendViewModel: RekomenViewModel = hiltViewModel()
+    val foodRecommendations by rekomendViewModel.foodRecommendations.observeAsState(emptyList())
+    val exerciseRecommendations = rekomendViewModel.exerciseRecommendations.observeAsState()
+    val isLoading by rekomendViewModel.isLoading.observeAsState(false)
+    val error by rekomendViewModel.error.observeAsState(null)
+
+    // Fetch recommendations when Dashboard loads
+    LaunchedEffect(Unit) { rekomendViewModel.fetchRekomend() }
 
     Scaffold(
         bottomBar = {
             BottomNavigationBar(buttons = buttons, navController = navController, currentScreen = Route.DashboardScreen)
         },
+        floatingActionButton = {
+            androidx.compose.material3.FloatingActionButton(
+                onClick = { navController.navigate(Route.ChatScreen) }, // Ganti dengan route tujuan
+            ) {
+                androidx.compose.material3.Icon(
+                    painter = painterResource(id = R.drawable.bapak), // Ganti dengan icon yang kamu punya
+                    contentDescription = "Tambah Rekomendasi",
+                    modifier = Modifier
+                    .width(24.dp)
+                    .height(24.dp),
+                )
+            }
+        },
         modifier = Modifier.fillMaxSize().navigationBarsPadding(),
-    ) { innerPadding ->
+    ) { safeDrawingPadding ->
         Column(
             modifier = Modifier
+                .padding(
+                    top = safeDrawingPadding.calculateTopPadding(),
+                    start = 16.dp,
+                    bottom = safeDrawingPadding.calculateBottomPadding(),
+                    end = 16.dp
+                )
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
+
         ) {
             UserHeader(
                 name = data.user.name,
@@ -155,10 +201,105 @@ fun DashboardScreenUI(data: Data, navController: NavController) {
                 satisfaction = data.status.satisfaction,
                 message = data.status.message
             )
+            DashboardRekomendasiSection(
+                foodRecommendations = foodRecommendations,
+                exerciseRecommendations = exerciseRecommendations.value?.exerciseList ?: emptyList(),
+                isLoading = isLoading,
+                error = error,
+                onLihatExecClick = {
+                    navController.navigate(Route.ExerciseRekomenScreen) {
+                        launchSingleTop = true
+                    }
+                },
+                onLihatFoodClick = {
+                    navController.navigate(Route.FoodRekomenScreen) {
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
     }
 }
 
+@Composable
+fun DashboardRekomendasiSection(
+    foodRecommendations: List<com.amikom.sweetlife.data.remote.dto.rekomen.FoodRecommendation>,
+    exerciseRecommendations: List<com.amikom.sweetlife.data.remote.dto.rekomen.Exercise>,
+    isLoading: Boolean,
+    error: String?,
+    onLihatExecClick: () -> Unit,
+    onLihatFoodClick: () -> Unit
+) {
+    if (isLoading) {
+        CircularProgressIndicator(
+            modifier = Modifier
+                .size(16.dp)
+                .fillMaxWidth()
+                .padding(16.dp),
+            color = MaterialTheme.colorScheme.primary
+        )
+
+    } else if (error != null) {
+        Text(text = error, color = Color.Red)
+    } else {
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = "Rekomendasi Makanan", style = MaterialTheme.typography.titleLarge)
+        foodRecommendations.take(3).forEach { food ->
+            RekomendItemFood(food)
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+
+            Text(
+                text = "Lihat Semua",
+                modifier = Modifier
+                    .background(Color.Transparent)
+                    .clickable { onLihatFoodClick()
+                               Log.d("DashboardRekomendasiSection", "Lihat Semua Makanan Clicked")
+                               },
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_navigate_next_24_white),
+                contentDescription = "Lihat Semua",
+                modifier = Modifier
+                    .size(24.dp)
+                    .padding(start = 8.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = "Rekomendasi Latihan", style = MaterialTheme.typography.titleLarge)
+        exerciseRecommendations.take(3).forEach { exercise ->
+            RekomendItemExec(exercise)
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = "Lihat Semua",
+                modifier = Modifier
+                    .background(Color.Transparent)
+                    .clickable { onLihatExecClick() },
+                color = MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Icon(
+                painter = painterResource(id = R.drawable.ic_navigate_next_24_white),
+                contentDescription = "Lihat Semua",
+                modifier = Modifier
+                    .size(24.dp)
+                    .padding(start = 8.dp)
+            )
+        }
+    }
+}
 
 // nama dan tipe diabetes
 @Composable
@@ -291,21 +432,6 @@ private fun StatusCard(
         },
         style = MaterialTheme.typography.titleMedium
     )
-    Image(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .height(300.dp)
-            .width(300.dp)
-            .fillMaxSize(),
-        painter = painterResource(
-            //belom tau nilai satisfac apa
-            id = when (satisfaction) {
-                "PASS" -> R.drawable.idle
-                "OVER" -> R.drawable.gendut
-                else -> R.drawable.kurus
-            }
-        ),
-        contentDescription = "Status Icon",
-    )
 }
+
+//recomend

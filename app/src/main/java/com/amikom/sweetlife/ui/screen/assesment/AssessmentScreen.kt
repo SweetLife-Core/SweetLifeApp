@@ -80,37 +80,52 @@ fun DropdownSelector(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Button(
-        onClick = { expanded = true },
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-            contentColor = MaterialTheme.colorScheme.onBackground
-        ),
-        border = BorderStroke(1.dp, Color.Gray)
-    ) {
-        Text(
-            text = selectedValue.ifEmpty { placeholder },
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Start,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
-    }
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = { expanded = true },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(15.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFFF5F5F5),
+                contentColor = MaterialTheme.colorScheme.onBackground
+            ),
+            border = BorderStroke(1.dp, Color.Gray),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = selectedValue.ifEmpty { placeholder },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Dropdown Arrow",
+                    tint = Color.Gray
+                )
+            }
+        }
 
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { expanded = false },
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        options.forEach { option ->
-            DropdownMenuItem(
-                text = { Text(option) },
-                onClick = {
-                    expanded = false
-                    onValueSelected(option)
-                }
-            )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option) },
+                    onClick = {
+                        expanded = false
+                        onValueSelected(option)
+                    }
+                )
+            }
         }
     }
 }
@@ -179,7 +194,6 @@ fun AssessmentScreen(navController: NavController, viewModel: AssessmentViewMode
             )
         },
         bottomBar = {
-
             val isNotLoading = updateProfileResult !is Result.Loading && createHealth !is Result.Loading
 
             Row(
@@ -344,13 +358,6 @@ fun PersonalDataScreen(viewModel: AssessmentViewModel) {
                     "Full Name",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
-                )
-            },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Person Icon",
-                    tint = Color.Gray
                 )
             },
             singleLine = true

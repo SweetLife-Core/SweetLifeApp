@@ -38,7 +38,6 @@ object BottomNavItems {
     val routes = listOf(
         Route.DashboardScreen,
         Route.HistoryScreen,
-        Route.RekomenScreen,
         Route.ProfileScreen
     )
 }
@@ -59,7 +58,6 @@ fun getBottomNavButtons(
             selected = index == selectedIndex.value,
             onClick = {
                 selectedIndex.value = index
-
                 navController.navigate(BottomNavItems.routes[index]) {
                     launchSingleTop = true
                     restoreState = true
@@ -73,6 +71,7 @@ fun getBottomNavButtons(
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun BottomNavigationBar(
+
     buttons: List<RioBottomNavItemData>,
     fabIcon: ImageVector = ImageVector.vectorResource(id = R.drawable.scan),
     fabSize: Dp = 70.dp,
@@ -82,9 +81,7 @@ fun BottomNavigationBar(
     navController: NavController,
     currentScreen: Any
 ) {
-
     val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
-
     fun openCamera() {
         if (cameraPermissionState.status.isGranted) {
             navController.navigate(Route.CameraScreen) {

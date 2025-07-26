@@ -64,3 +64,4 @@ data class DiabetesPrediction(
 	@field:SerializedName("risk_percentage")
 	val riskPercentage: Double? = null
 )
+

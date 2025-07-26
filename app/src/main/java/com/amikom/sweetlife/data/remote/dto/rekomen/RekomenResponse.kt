@@ -7,6 +7,7 @@ data class RekomenResponse(
     @SerializedName("status") val status: Boolean = false
 )
 
+
 data class Data(
     @SerializedName("food_recommendation")
     val foodRecommendation: List<FoodRecommendation> = emptyList(),
@@ -39,3 +40,5 @@ data class Exercise(
     @SerializedName("desc") val desc: String = "",
     @SerializedName("image") val image: String = ""
 )
+
+

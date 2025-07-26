@@ -26,8 +26,9 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.OutputStream
+import javax.inject.Inject
 
-class ProfileRepositoryImpl(
+class ProfileRepositoryImpl @Inject constructor(
     private val context: Context,
     private val featureApiService: FeatureApiService,
     private val appExecutors: AppExecutors

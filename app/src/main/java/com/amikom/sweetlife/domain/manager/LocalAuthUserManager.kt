@@ -5,7 +5,7 @@ import com.amikom.sweetlife.data.model.UserModel
 import kotlinx.coroutines.flow.Flow
 
 
-interface LocalAuthUserManager {
+interface LocalAuthUserManager  {
 
     suspend fun saveInfoLogin(userModel: UserModel)
 

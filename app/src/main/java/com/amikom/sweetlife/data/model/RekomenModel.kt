@@ -2,7 +2,6 @@ package com.amikom.sweetlife.data.model
 
 import com.google.gson.annotations.SerializedName
 
-
 data class RekomenModel(
     val data: RekomenData? = null,
     val status: Boolean = false

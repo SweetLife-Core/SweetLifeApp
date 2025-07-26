@@ -120,6 +120,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation("androidx.navigation:navigation-compose:2.8.4")
 
+    implementation ("me.rmyhal.contentment:contentment:2.0.1")
 
     // Ui Controller
     implementation(libs.accompanist.systemuicontroller)

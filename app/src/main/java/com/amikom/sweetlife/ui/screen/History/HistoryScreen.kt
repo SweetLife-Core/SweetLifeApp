@@ -41,7 +41,7 @@ fun HistoryScreen(
             BottomNavigationBar(
                 buttons = buttons,
                 navController = navController,
-                currentScreen = Route.RekomenScreen
+                currentScreen = Route.HistoryScreen
             )
         },
         modifier = Modifier

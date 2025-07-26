@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        enableEdgeToEdge() // Udah di handle sama ini
+        enableEdgeToEdge()
 
 //        val isDarkMode = viewModel.isDarkMode.value
 //        val isDarkMode = remember { mutableStateOf(false) }
