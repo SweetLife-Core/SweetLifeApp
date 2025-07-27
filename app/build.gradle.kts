@@ -109,6 +109,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.7")
 
+    implementation("androidx.compose.material3:material3:1.2.1")
 
     // Navigation Compose
     implementation(libs.androidx.navigation.compose)

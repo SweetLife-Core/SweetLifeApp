@@ -3,6 +3,7 @@ package com.amikom.sweetlife.util
 import androidx.compose.runtime.MutableState
 
 object Constants {
+    const val USER_ID = "id"
     const val USER_SETTINGS = "userSettings"
 
     const val APP_ENTRY = "appEntry"

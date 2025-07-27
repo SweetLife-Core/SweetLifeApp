@@ -16,4 +16,6 @@ data class AuthUseCases(
 
     val refreshNewToken: RefreshNewTokenAction,
     val saveNewToken: SaveNewToken,
+
+    val readUserId: ReadUserId,
 )

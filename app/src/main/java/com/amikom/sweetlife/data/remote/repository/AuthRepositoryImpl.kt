@@ -45,7 +45,8 @@ class AuthRepositoryImpl(
                     token = token.accessToken ?: throw Exception("Token is null"),
                     refreshToken = token.refreshToken ?: throw Exception("Refresh Token is null"),
                     isLogin = true,
-                    hasHealthProfile = loginUser.user?.hasHealthProfile ?: false
+                    hasHealthProfile = loginUser.user?.hasHealthProfile ?: false,
+                    id = loginUser.user?.id ?: throw Exception("User ID is null")
                 )
                 // Update result on main thread
                 appExecutors.mainThread.execute {

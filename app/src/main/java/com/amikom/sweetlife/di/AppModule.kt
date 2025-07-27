@@ -186,7 +186,8 @@ object AppModule {
             saveNewToken = SaveNewToken(localAuthUserManager = localAuthUserManager),
             checkHasHealthProfile = CheckHasHealthProfile(localAuthUserManager = localAuthUserManager),
             saveHealthProfile = SaveHealthProfile(localAuthUserManager = localAuthUserManager),
-            logout = LogoutAction(authRepository = authRepository)
+            logout = LogoutAction(authRepository = authRepository),
+            readUserId = com.amikom.sweetlife.domain.usecases.auth.ReadUserId(localAuthUserManager = localAuthUserManager)
         )
     }
 

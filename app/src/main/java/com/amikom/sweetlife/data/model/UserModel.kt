@@ -1,6 +1,7 @@
 package com.amikom.sweetlife.data.model
 
 data class UserModel(
+    val id: String,
     val email: String,
     val name: String,
     val gender: String,

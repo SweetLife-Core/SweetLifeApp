@@ -20,4 +20,6 @@ interface LocalAuthUserManager  {
     suspend fun logout()
 
     fun getAllToken(): Flow<List<Pair<String, String?>>>
+
+    suspend fun readUserId(): String?
 }

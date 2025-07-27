@@ -36,6 +36,8 @@ class ChatBotViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            val userId = authUseCases.readUserId()
+            Log.d("ChatBot", "User ID: $userId")
             val localHistory = repository.getHistory().map {
                 ChatMessage(it.message, it.isFromUser, it.timestamp)
             }
@@ -46,24 +48,27 @@ class ChatBotViewModel @Inject constructor(
     fun sendMessage(msg: String) {
         viewModelScope.launch {
             _chatHistory.value += ChatMessage(msg, isFromUser = true)
-            authUseCases.readUserAllToken().collect { tokenList ->
-                val userId = tokenList.firstOrNull { it.first == "userToken" }?.second
-                if (userId.isNullOrEmpty()) {
-                    _response.value = "Error: User ID is missing"
-                    return@collect
-                }
-                try {
-                    _isBotTyping.value = true
-                    val result = repository.sendMessage(userId, ChatbotRequest(msg))
-                    delay(300)
-                    _chatHistory.value += ChatMessage(result.output, isFromUser = false)
-                    _response.value = result.output
-                    _isBotTyping.value = false
-                } catch (e: Exception) {
-                    _response.value = "Error: ${e.localizedMessage ?: "Unknown error"}"
-                }
+
+            val userId = authUseCases.readUserId()
+            if (userId.isNullOrEmpty()) {
+                _response.value = "Error: User ID is missing"
+                return@launch
+            }
+
+            try {
+                _isBotTyping.value = true
+                val result = repository.sendMessage(userId, ChatbotRequest(msg))
+                delay(300)
+                _chatHistory.value += ChatMessage(result.output, isFromUser = false)
+                _response.value = result.output
+            } catch (e: Exception) {
+                _response.value = "Error: ${e.localizedMessage ?: "Unknown error"}"
+            } finally {
+                _isBotTyping.value = false
             }
         }
     }
+
+
 
 }
