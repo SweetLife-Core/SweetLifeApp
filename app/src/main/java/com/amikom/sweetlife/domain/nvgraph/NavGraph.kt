@@ -33,7 +33,9 @@ import com.amikom.sweetlife.ui.screen.auth.login.LoginScreen
 import com.amikom.sweetlife.ui.screen.auth.login.LoginViewModel
 import com.amikom.sweetlife.ui.screen.auth.signup.SignUpViewModel
 import com.amikom.sweetlife.ui.screen.auth.signup.SignupScreen
+import com.amikom.sweetlife.ui.screen.grocery.GroceryScreen
 import com.amikom.sweetlife.ui.screen.home.HomeScreen
+import com.amikom.sweetlife.ui.screen.minicourse.MiniCourseScreen
 import com.amikom.sweetlife.ui.screen.profile.EditHealthData.EditDataScreen
 import com.amikom.sweetlife.ui.screen.profile.EditHealthData.EditDataScreenViewModel
 import com.amikom.sweetlife.ui.screen.profile.ProfileViewModel
@@ -79,6 +81,14 @@ fun NavGraph(
 
         composable<Route.HomeScreen> {
             HomeScreen()
+        }
+
+        composable<Route.MiniCourseScreen>{
+            MiniCourseScreen()
+        }
+
+        composable<Route.GroceryScreen> {
+            GroceryScreen()
         }
 
         composable<Route.AssessmentScreen> {

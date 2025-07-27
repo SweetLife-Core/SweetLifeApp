@@ -31,13 +31,14 @@ object BottomNavItems {
     val labels = listOf(
         "Home",
         "Food History",
-        "Activity",
+        "Grocery",
         "Settings"
     )
 
     val routes = listOf(
         Route.DashboardScreen,
         Route.HistoryScreen,
+        Route.GroceryScreen,
         Route.ProfileScreen
     )
 }

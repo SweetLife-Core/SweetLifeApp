@@ -59,4 +59,10 @@ sealed class Route {
 
     @Serializable
     data object ChatScreenBot: Route()
+
+    @Serializable
+    data object MiniCourseScreen: Route()
+
+    @Serializable
+    data object GroceryScreen: Route()
 }

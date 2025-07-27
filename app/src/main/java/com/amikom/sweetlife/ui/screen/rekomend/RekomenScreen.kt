@@ -111,8 +111,7 @@ fun RekomenScreen(
 }
 
 @Composable
-fun RekomendItemFood(item: FoodRecommendation) {
-    Spacer(modifier = Modifier.height(16.dp))
+fun RekomendItemFood(item: FoodRecommendation, modifier: Modifier = Modifier) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -144,8 +143,7 @@ fun RekomendItemFood(item: FoodRecommendation) {
 }
 
 @Composable
-fun RekomendItemExec(exercise: Exercise) {
-    Spacer(modifier = Modifier.height(10.dp))
+fun RekomendItemExec(exercise: Exercise, modifier: Modifier = Modifier) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
