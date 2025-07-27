@@ -215,6 +215,11 @@ fun DashboardScreenUI(data: Data, navController: NavController) {
                     navController.navigate(Route.FoodRekomenScreen) {
                         launchSingleTop = true
                     }
+                },
+                onMiniCourseClick = {
+                    navController.navigate(Route.MiniCourseScreen) {
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -228,7 +233,8 @@ fun DashboardRekomendasiSection(
     isLoading: Boolean,
     error: String?,
     onLihatExecClick: () -> Unit,
-    onLihatFoodClick: () -> Unit
+    onLihatFoodClick: () -> Unit,
+    onMiniCourseClick: () -> Unit
 ) {
     if (isLoading) {
         CircularProgressIndicator(
@@ -297,6 +303,37 @@ fun DashboardRekomendasiSection(
                     .size(24.dp)
                     .padding(start = 8.dp)
             )
+        }
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = "Mini Course For You", style = MaterialTheme.typography.titleLarge)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onMiniCourseClick() },
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.bapak), // Use your course icon
+                    contentDescription = "Mini Course",
+                    modifier = Modifier.size(40.dp)
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Column {
+                    Text(
+                        text = "Mini Course",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "Learn more about diabetes and healthy living.",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
         }
     }
 }
