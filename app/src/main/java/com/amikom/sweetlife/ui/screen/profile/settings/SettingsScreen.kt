@@ -45,12 +45,6 @@ fun FoodLogItem(userChoice: UserChoice, viewModel: SettingsViewModel) {
             .fillMaxWidth()
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardColors(
-            containerColor = Color.White,
-            contentColor = Color.Black,
-            disabledContainerColor = Color.Gray,
-            disabledContentColor = Color.Gray
-        )
     ) {
         Row(
             modifier = Modifier
@@ -84,12 +78,7 @@ fun FoodLogItem(userChoice: UserChoice, viewModel: SettingsViewModel) {
                 Switch(
                     checked = userChoice.isEnabled, onCheckedChange = { isChecked ->
                         viewModel.updateUserChoice(userChoice.id, isChecked)
-                    }, colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
-                        checkedTrackColor = MainBlue,
-                        uncheckedThumbColor = MainBlue,
-                        uncheckedTrackColor = Color.White,
-                    )
+                    }
                 )
             }
         }

@@ -18,7 +18,7 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor(
     private val appEntryUseCases: AppEntryUseCases
 ) : ViewModel() {
-    private val _isDarkMode = MutableStateFlow(false)
+    private val _isDarkMode = MutableStateFlow(true) // default true for dark mode
     val isDarkMode = _isDarkMode.asStateFlow()
 
     private val _userChoice = MutableStateFlow<List<UserChoice>>(emptyList())

@@ -28,8 +28,8 @@ import androidx.navigation.NavController
 
 sealed class FoodRekomenUiState {
     object Loading : FoodRekomenUiState()
-//    data class Loaded(val foodList: List<com.amikom.sweetlife.data.remote.dto.rekomen.>) : FoodRekomenUiState()
-//    data class Failed(val error: String?) : FoodRekomenUiState()
+    data class Loaded(val foodList: List<com.amikom.sweetlife.data.remote.dto.rekomen.FoodRecommendation>) : FoodRekomenUiState()
+    data class Failed(val error: String?) : FoodRekomenUiState()
 }
 
 @Composable
@@ -42,18 +42,11 @@ fun FoodRekomenScreen(
         Log.d("FoodRekomenScreen", "Fetching food recommendations")
     }
 
-    val foodRecommendations = viewModel.foodRecommendations.observeAsState()
+    val foodRecommendations by viewModel.foodRecommendations.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
     val error by viewModel.error.observeAsState(null)
-//    val foodList = foodRecommendations.value?.foodList ?: emptyList()
     val selectedIndex = Constants.CURRENT_BOTTOM_BAR_PAGE_ID
     val buttons = getBottomNavButtons(selectedIndex, navController)
-
-//    val uiState = when {
-//        isLoading -> FoodRekomenUiState.Loading
-//        error != null -> FoodRekomenUiState.Failed(error)
-//        else -> FoodRekomenUiState.Loaded(foodList)
-//    }
 
     Scaffold(
         bottomBar = {
@@ -65,23 +58,34 @@ fun FoodRekomenScreen(
         },
         modifier = Modifier.fillMaxSize(),
     ) { innerPadding ->
-        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
-//            when (uiState) {
-//                is FoodRekomenUiState.Loading ->
-//                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//                        CircularProgressIndicator()
-//                    }
-//                is FoodRekomenUiState.Failed ->
-//                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-//                        Text(text = uiState.error ?: "Unknown error", style = MaterialTheme.typography.bodyLarge)
-//                    }
-//                is FoodRekomenUiState.Loaded ->
-//                    LazyColumn(modifier = Modifier.fillMaxSize()) {
-//                        items(uiState.foodList) { food ->
-//                            RekomendItemFood(food)
-//                        }
-//                    }
-//            }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            when {
+                isLoading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+                error != null -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(text = error ?: "Unknown error", style = MaterialTheme.typography.bodyLarge)
+                    }
+                }
+                else -> {
+                    LazyColumn(modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        items(foodRecommendations) { food ->
+                            RekomendItemFood(item = food)
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
+                }
+            }
         }
     }
 }

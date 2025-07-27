@@ -162,7 +162,7 @@ fun DashboardScreenUI(data: Data, navController: NavController) {
                 onClick = { navController.navigate(Route.ChatScreenBot) }, // Ganti dengan route tujuan
             ) {
                 androidx.compose.material3.Icon(
-                    painter = painterResource(id = R.drawable.bapak), // Ganti dengan icon yang kamu punya
+                    painter = painterResource(id = R.drawable.comment), // Ganti dengan icon yang kamu punya
                     contentDescription = "Tambah Rekomendasi",
                     modifier = Modifier
                     .width(24.dp)
@@ -451,6 +451,7 @@ private fun ProgressItem(
     )
 }
 
+
 // gambar laknat
 @Composable
 private fun StatusCard(
@@ -458,7 +459,7 @@ private fun StatusCard(
     message: String
 ) {
     Text(
-        text = message,
+        text = "flaksdjflsk",
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth().
         padding(16.dp, 16.dp, 16.dp, 0.dp),

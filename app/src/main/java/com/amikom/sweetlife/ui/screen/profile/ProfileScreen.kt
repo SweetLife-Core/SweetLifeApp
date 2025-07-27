@@ -271,7 +271,7 @@ private fun UserInfo(
     ) {
         val imagePainter = rememberAsyncImagePainter(
             model = userProfile.image.ifEmpty {
-                "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png"
+                "https://ui-avatars.com/api/?name=${userProfile.name}&size=120&background=random"
             },
             error = painterResource(R.drawable.bapak), // Gambar error jika gagal memuat
             placeholder = painterResource(R.drawable.bapak) // Gambar placeholder saat loading
@@ -305,10 +305,6 @@ private fun gmailBox(
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(15.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White,
-            contentColor = Color.Black
-        ),
         modifier = Modifier
             .wrapContentWidth()
             .padding(0.dp, 16.dp)
@@ -319,7 +315,6 @@ private fun gmailBox(
         ) {
             Text(
                 text = text,
-                color = textColor,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
@@ -337,10 +332,6 @@ private fun diabetesRisk(
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(15.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Red,
-            contentColor = Color.White
-        ),
         modifier = Modifier
             .wrapContentWidth()
             .clickable(onClick = onClick)
@@ -352,7 +343,6 @@ private fun diabetesRisk(
         ) {
             Text(
                 text = text,
-                color = textColor,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
@@ -361,24 +351,51 @@ private fun diabetesRisk(
     }
 }
 
-//wadah userHealthItem
+//predict
+fun prediksiWaktuGoalBMI(
+    beratSekarang: Double,
+    tinggiCm: Double
+): Int {
+    val goalBMI = 22.0
+    val tinggiM = tinggiCm / 100.0
+    val beratTarget = goalBMI * tinggiM * tinggiM
+    val selisihBerat = beratTarget - beratSekarang
+    val totalKalori = selisihBerat * 7700
+    val kebutuhanKaloriMaintenance = beratSekarang * 30
+    val kaloriHarian = if (selisihBerat < 0) kebutuhanKaloriMaintenance - 500 else kebutuhanKaloriMaintenance + 500
+    val defisitKaloriPerHari = kebutuhanKaloriMaintenance - kaloriHarian
+    if (defisitKaloriPerHari == 0.0) return Int.MAX_VALUE
+    val waktuHari = totalKalori / defisitKaloriPerHari
+    return kotlin.math.abs(waktuHari).toInt()
+}
+
+
 @Composable
 private fun UserHealthData(userProfile: UserProfile) {
+    val berat = userProfile.weight ?: 0.0
+    val tinggi = userProfile.height ?: 0.0
+
+    val waktuHari = prediksiWaktuGoalBMI(
+        beratSekarang = berat,
+        tinggiCm = tinggi
+    )
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardColors(
-            containerColor = Color.White,
-            contentColor = Color.Black,
-            disabledContentColor = Color.Gray,
-            disabledContainerColor = Color.Gray
-        )
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            Text(
+                text = "Perkiraan goal terpenuhi : $waktuHari hari",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+            )
             UserHealthItem(
                 label = "Weight",
                 value = "${userProfile.weight.toInt()} kg"
@@ -396,6 +413,7 @@ private fun UserHealthData(userProfile: UserProfile) {
                 value = if (userProfile.isDiabetesRisk) "At risk" else "Not at risk",
                 boolean = userProfile.isDiabetesRisk
             )
+
         }
     }
 }
@@ -416,7 +434,7 @@ private fun UserHealthItem(
             text = value,
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.Bold,
-            color = if (boolean) Color.Red else Color.Black
+            color = if (boolean) Color.Red else Color.Gray
         )
     }
 }
@@ -435,12 +453,6 @@ fun ProfileMenuItem(
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardColors(
-            containerColor = Color.White,
-            contentColor = Color.Black,
-            disabledContentColor = Color.Gray,
-            disabledContainerColor = Color.Gray
-        )
     ) {
         Row(
             modifier = Modifier
@@ -452,20 +464,17 @@ fun ProfileMenuItem(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = Color.Black,
                 modifier = Modifier.size(24.dp)
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = text,
-                color = textColor,
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.weight(1f)
             )
             Icon(
                 imageVector = trailingIcon,
                 contentDescription = null,
-                tint = Color.Gray
             )
         }
     }
