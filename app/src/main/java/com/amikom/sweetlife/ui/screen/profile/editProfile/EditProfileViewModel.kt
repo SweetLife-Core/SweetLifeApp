@@ -247,7 +247,7 @@ class EditProfileViewModel @Inject constructor(
                         response.data.photoProfile
                     )
                 } else {
-                        Log.d("EditProfileViewModel", "uploadProfileImage: ${response.data?.photoProfile}")
+                    Log.d("EditProfileViewModel", "uploadProfileImage: ${response.data?.photoProfile}")
                     // Set state error dengan pesan dari response
                     _imageUploadState.value = ImageUploadState.Error(
                         response.data?.photoProfile ?: "Failed to upload image"

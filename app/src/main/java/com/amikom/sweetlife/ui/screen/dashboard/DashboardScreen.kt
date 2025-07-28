@@ -170,7 +170,7 @@ fun DashboardScreenUI(data: Data, navController: NavController) {
                 )
             }
         },
-        modifier = Modifier.fillMaxSize().navigationBarsPadding(),
+        modifier = Modifier.fillMaxSize(),
     ) { safeDrawingPadding ->
         Column(
             modifier = Modifier
@@ -459,7 +459,7 @@ private fun StatusCard(
     message: String
 ) {
     Text(
-        text = "flaksdjflsk",
+        text = message,
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth().
         padding(16.dp, 16.dp, 16.dp, 0.dp),
