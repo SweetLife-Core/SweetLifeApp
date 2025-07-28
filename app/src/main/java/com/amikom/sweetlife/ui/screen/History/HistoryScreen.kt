@@ -45,8 +45,7 @@ fun HistoryScreen(
             )
         },
         modifier = Modifier
-            .fillMaxSize()
-            .navigationBarsPadding(),
+            .fillMaxSize(),
     ) {  fillMaxSize ->
         Box(modifier = Modifier
             .fillMaxSize()

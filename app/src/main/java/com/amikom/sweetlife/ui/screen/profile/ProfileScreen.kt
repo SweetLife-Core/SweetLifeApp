@@ -169,7 +169,7 @@ fun UserProfileScreen(
         bottomBar = {
             BottomNavigationBar(buttons = buttons, navController = navController, currentScreen = Route.ProfileScreen)
         },
-        modifier = Modifier.fillMaxSize().navigationBarsPadding(),
+        modifier = Modifier.fillMaxSize(),
     ) { innerPadding ->
         Box(
             modifier = Modifier

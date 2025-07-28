@@ -78,6 +78,7 @@ fun BottomNavigationBar(
     fabSize: Dp = 70.dp,
     barHeight: Dp = 70.dp,
     selectedItemColor: Color = MaterialTheme.colorScheme.primary,
+    unselectedItemColor: Color = MaterialTheme.colorScheme.tertiary,
     fabBackgroundColor: Color = MaterialTheme.colorScheme.primary,
     navController: NavController,
     currentScreen: Any
@@ -96,6 +97,8 @@ fun BottomNavigationBar(
         buttons = buttons,
         fabSize = fabSize,
         barHeight = barHeight,
+        backgroundColor = MaterialTheme.colorScheme.surface,
+        unselectedItemColor = unselectedItemColor,
         selectedItemColor = selectedItemColor,
         fabBackgroundColor = fabBackgroundColor,
         onFabClick = {

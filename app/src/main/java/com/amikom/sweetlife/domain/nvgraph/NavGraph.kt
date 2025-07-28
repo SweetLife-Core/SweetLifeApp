@@ -88,7 +88,7 @@ fun NavGraph(
         }
 
         composable<Route.GroceryScreen> {
-            GroceryScreen()
+            GroceryScreen(navController = navController)
         }
 
         composable<Route.AssessmentScreen> {
