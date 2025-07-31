@@ -5,11 +5,12 @@ import com.amikom.sweetlife.data.model.DashboardModel
 import com.amikom.sweetlife.data.remote.Result
 import com.amikom.sweetlife.data.remote.dto.scan.FindFoodResponse
 import com.amikom.sweetlife.domain.repository.DashboardRepository
+import javax.inject.Inject
 
-class FindFood (
+class FindFood @Inject constructor (
     private val dashboardRepository: DashboardRepository
 ) {
-    suspend operator fun invoke(name: String, weight: Int): LiveData<Result<FindFoodResponse>> {
+    suspend operator fun invoke(name: String, weight: Int): Result<FindFoodResponse> {
         return dashboardRepository.fetchFindFood(name, weight)
     }
 }

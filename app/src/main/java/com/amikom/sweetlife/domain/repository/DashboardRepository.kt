@@ -12,9 +12,9 @@ import java.io.File
 
 interface DashboardRepository {
 
-    suspend fun fetchDataDashboard(): LiveData<Result<DashboardModel>>
-    suspend fun fetchFindFood(name: String, weight: Int): LiveData<Result<FindFoodResponse>>
-    suspend fun saveFoodRequest(listFood: FoodRequest): LiveData<Result<SaveFoodResponse>>
-    suspend fun scanFood(image:  MultipartBody.Part): LiveData<Result<ScanResponse>>
+    suspend fun fetchDataDashboard(): Result<DashboardModel>
+    suspend fun fetchFindFood(name: String, weight: Int): Result<FindFoodResponse>
+    suspend fun saveFoodRequest(listFood: FoodRequest): Result<SaveFoodResponse>
+    suspend fun scanFood(image: MultipartBody.Part): Result<ScanResponse>
 
 }

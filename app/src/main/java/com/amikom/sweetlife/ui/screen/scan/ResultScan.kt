@@ -3,6 +3,7 @@ package com.amikom.sweetlife.ui.screen.scan
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -50,6 +51,8 @@ fun ResultAndAdditionalScreen(
     var showPopup by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
     var weightText by remember { mutableStateOf("") }
+
+    // Ini sudah benar, observeAsState untuk LiveData di Compose
     val findFoodData by viewModel.findFoodData.observeAsState()
     val saveFoodData by viewModel.saveFoodData.observeAsState()
 
@@ -62,34 +65,45 @@ fun ResultAndAdditionalScreen(
         }
     }
 
+    // State untuk dialog sukses/gagal, ini sudah lumayan.
     var showSuccessDialog by remember { mutableStateOf(false) }
     var showErrorDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(saveFoodData) {
         when (saveFoodData) {
             is Result.Success -> {
-                showSuccessDialog = true // Tampilkan dialog sukses
+                showSuccessDialog = true
+                viewModel.resetSaveState() // Reset state setelah berhasil atau gagal
+                navController.navigate(Route.DashboardScreen) {
+                    popUpTo(Route.DashboardScreen) { inclusive = true }
+                    launchSingleTop = true
+                }
+                Toast.makeText(navController.context, "Success", Toast.LENGTH_SHORT).show()
             }
             is Result.Error -> {
-                showErrorDialog = true // Tampilkan dialog gagal
+                showErrorDialog = true
+//                viewModel.resetSaveState() // Reset state setelah berhasil atau gagal
             }
-            else -> {
+            Result.Empty -> { // Tambahkan ini agar dialog tidak muncul tiba-tiba saat inisialisasi
                 showSuccessDialog = false
                 showErrorDialog = false
             }
+            else -> {} // Jangan lakukan apa-apa untuk Result.Loading
         }
     }
 
+    // Dialog Sukses
     if (showSuccessDialog) {
         CustomDialog(
             icon = R.drawable.baseline_check_circle_outline_24,
             title = "Success",
             message = "Your food data has been saved!",
-            openDialogCustom = remember { mutableStateOf(true) },
+            openDialogCustom = remember { mutableStateOf(true) }, // Ini udah diobservasi dari showSuccessDialog
             buttons = listOf(
                 "Ok" to {
-                    showSuccessDialog = false // Tutup dialog
+                    showSuccessDialog = false
                     navController.navigate(Route.DashboardScreen) {
+                        popUpTo(Route.DashboardScreen) { inclusive = true } // popUpTo biar stacknya bersih
                         launchSingleTop = true
                     }
                 }
@@ -98,15 +112,16 @@ fun ResultAndAdditionalScreen(
         )
     }
 
+    // Dialog Error
     if (showErrorDialog) {
         CustomDialog(
             icon = R.drawable.baseline_info_outline_24,
             title = "Failed",
             message = "Can't save your food data",
-            openDialogCustom = remember { mutableStateOf(true) },
+            openDialogCustom = remember { mutableStateOf(true) }, // Sama, udah diobservasi
             buttons = listOf(
                 "Try again" to {
-                    showErrorDialog = false // Tutup dialog
+                    showErrorDialog = false
                 }
             ),
             dismissOnBackdropClick = false
@@ -124,6 +139,8 @@ fun ResultAndAdditionalScreen(
             buttons = listOf(
                 "Ok" to {
                     navController.navigate(Route.LoginScreen) {
+                        // Jangan cuma launchSingleTop, bersihkan back stack juga.
+                        popUpTo(navController.graph.id) { inclusive = true }
                         launchSingleTop = true
                     }
                 }
@@ -172,12 +189,17 @@ fun ResultAndAdditionalScreen(
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onBackground
                     )
-                    IconButton(onClick = { if(saveFoodData !is Result.Loading) {
-                        viewModel.resetFindState()
-                        showPopup = true
-                    } }) { // Tampilkan popup
+                    IconButton(onClick = {
+                        // Pastikan tidak ada proses saveFood yang sedang berjalan saat mau nambahin
+                        if (saveFoodData !is Result.Loading) {
+                            viewModel.resetFindState() // Reset state pencarian baru
+                            searchText = "" // Reset teks pencarian
+                            weightText = "" // Reset teks berat
+                            showPopup = true
+                        }
+                    }) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_add),
+                            painter = painterResource(R.drawable.ic_add), // Pastikan ini icon yang benar
                             contentDescription = "Add Additional",
                             tint = MaterialTheme.colorScheme.onBackground
                         )
@@ -205,15 +227,16 @@ fun ResultAndAdditionalScreen(
                     additionall = additionalList
                 )
 
+                // Panggil ViewModel untuk menyimpan data
                 viewModel.saveFood(foodRequest)
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(62.dp)
-                .align(Alignment.BottomCenter) // Sticky di bawah
-                .padding(horizontal = 16.dp, vertical = 8.dp), // Padding untuk estetika
+                .align(Alignment.BottomCenter)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             shape = MaterialTheme.shapes.small,
-            enabled = saveFoodData !is Result.Loading
+            enabled = saveFoodData !is Result.Loading // Disable tombol saat loading
         ) {
             if (saveFoodData is Result.Loading) {
                 CircularProgressIndicator(
@@ -230,15 +253,21 @@ fun ResultAndAdditionalScreen(
     // Popup for Additional Item Search
     if (showPopup) {
         AlertDialog(
-            onDismissRequest = { showPopup = false },
+            onDismissRequest = {
+                if (findFoodData !is Result.Loading) { // Hanya bisa dismiss kalau tidak sedang loading
+                    showPopup = false
+                    viewModel.resetFindState() // Reset state pencarian saat dismiss
+                }
+            },
             title = { Text("Search Additional Food") },
             text = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     OutlinedTextField(
                         value = searchText,
                         onValueChange = {
-                            searchText =
-                                it.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
+                            searchText = it.replaceFirstChar { char -> // Perbaiki Locale.ROOT
+                                if (char.isLowerCase()) char.titlecase(Locale.ROOT) else char.toString()
+                            }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(15.dp),
@@ -268,6 +297,7 @@ fun ResultAndAdditionalScreen(
                         singleLine = true
                     )
                     Spacer(modifier = Modifier.height(8.dp))
+                    // Tampilkan ringkasan nutrisi atau loading/error
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
@@ -275,95 +305,115 @@ fun ResultAndAdditionalScreen(
                             .background(Color(0xFFD8D8D8))
                             .padding(16.dp)
                     ) {
-                        if (findFoodData is Result.Success) {
-                            val foodListItem =
-                                (findFoodData as Result.Success<FindFoodResponse>).data.data
-
-                            Text(
-                                text = "Calorie\n${foodListItem?.calories?.let { ceil(it).toInt() }} kcal",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSecondary
-                            )
-                            Text(
-                                text = "Fat\n${foodListItem?.fat?.let { ceil(it).toInt() }} g",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSecondary
-                            )
-                            Text(
-                                text = "Carbs\n${foodListItem?.carbohydrates?.let { ceil(it).toInt() }} g",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSecondary
-                            )
-                            Text(
-                                text = "Sugar\n${foodListItem?.sugar?.let { ceil(it).toInt() }} g",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSecondary
-                            )
-                            Text(
-                                text = "Protein\n${foodListItem?.protein?.let { ceil(it).toInt() }} g",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSecondary
-                            )
-                        } else if (findFoodData is Result.Loading) {
-                            Text(text = "Loading...", style = MaterialTheme.typography.bodySmall)
-                        } else if (findFoodData is Result.Error) {
-                            Text("Food $searchText is not found!", textAlign = TextAlign.Center)
-                        } else {
-                            Text(
-                                text = "Calorie\n0 kcal",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                            Text(text = "Fat\n0 g", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondary)
-                            Text(text = "Carbs\n0 g", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondary)
-                            Text(text = "Sugar\n0 g", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondary)
-                            Text(text = "Protein\n0 g", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondary)
+                        when (findFoodData) {
+                            is Result.Success -> {
+                                val foodListItem = (findFoodData as Result.Success<FindFoodResponse>).data.data
+                                foodListItem?.let {
+                                    Text(
+                                        text = "Calorie\n${ceil(it.calories ?: 0.0).toInt()} kcal",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                    Text(
+                                        text = "Fat\n${ceil(it.fat ?: 0.0).toInt()} g",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                    Text(
+                                        text = "Carbs\n${ceil(it.carbohydrates ?: 0.0).toInt()} g",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                    Text(
+                                        text = "Sugar\n${ceil(it.sugar ?: 0.0).toInt()} g",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                    Text(
+                                        text = "Protein\n${ceil(it.protein ?: 0.0).toInt()} g",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSecondary
+                                    )
+                                } ?: run { // Kalau data null
+                                    Text("No data found for this food.", textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSecondary, modifier = Modifier.fillMaxWidth())
+                                }
+                            }
+                            is Result.Loading -> {
+                                Text(text = "Loading...", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondary, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                            }
+                            is Result.Error -> {
+                                Text(
+                                    text = "Food is not found!",
+                                    color = MaterialTheme.colorScheme.onSecondary,
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                            else -> { // Result.Empty
+                                Text(
+                                    text = "Calorie\n0 kcal",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
+                                Text(text = "Fat\n0 g", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondary)
+                                Text(text = "Carbs\n0 g", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondary)
+                                Text(text = "Sugar\n0 g", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondary)
+                                Text(text = "Protein\n0 g", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSecondary)
+                            }
                         }
                     }
                 }
             },
             confirmButton = {
-                TextButton(onClick = {
-                    val weight = weightText.toIntOrNull() ?: 0
+                val weight = weightText.toIntOrNull() ?: 0
+                val canSearch = searchText.isNotBlank() && weight > 0
+                val enableAddButton = findFoodData is Result.Success && (findFoodData as Result.Success<FindFoodResponse>).data.data != null
 
-                    if (findFoodData !is Result.Loading) {
-                        if (searchText.isNotBlank() && weight > 0) {
-                            viewModel.findFood(searchText, weight)
-                        }
-                    }
-
-                    if (findFoodData is Result.Success) {
-                        val result = (findFoodData as Result.Success).data.data
-                        additionalList.add(
-                            AdditionalItem(
-                                name = searchText,
-                                weight = weight,
-                                info = AdditionalInfo(
-                                    calories = result?.calories ?: 0.0,
-                                    fat = result?.fat ?: 0.0,
-                                    carbohydrates = result?.carbohydrates ?: 0.0,
-                                    sugar = result?.sugar ?: 0.0,
-                                    protein = result?.protein ?: 0.0
+                TextButton(
+                    onClick = {
+                        if (findFoodData is Result.Success) {
+                            val resultData = (findFoodData as Result.Success).data.data
+                            if (resultData != null) {
+                                additionalList.add(
+                                    AdditionalItem(
+                                        name = searchText,
+                                        weight = weight,
+                                        info = AdditionalInfo(
+                                            calories = resultData.calories ?: 0.0,
+                                            fat = resultData.fat ?: 0.0,
+                                            carbohydrates = resultData.carbohydrates ?: 0.0,
+                                            sugar = resultData.sugar ?: 0.0,
+                                            protein = resultData.protein ?: 0.0
+                                        )
+                                    )
                                 )
-                            )
-                        )
-                        searchText = ""
-                        weightText = ""
-                        Handler(Looper.getMainLooper()).postDelayed({
-                            viewModel.resetFindState()
-                        }, 100)
-                        showPopup = false
-                    }
-                }) {
+                                // Clear input dan tutup popup setelah menambahkan
+                                searchText = ""
+                                weightText = ""
+                                showPopup = false
+                                viewModel.resetFindState() // Penting untuk reset state setelah berhasil
+                            }
+                            } else if (findFoodData !is Result.Loading && canSearch) {
+                                // Ini kondisi untuk trigger pencarian jika belum ada hasil atau error, dan input valid
+                                viewModel.findFood(searchText, weight)
+                            }
+                    },
+                    enabled = (findFoodData !is Result.Loading && canSearch) || enableAddButton
+                ) {
                     when (findFoodData) {
                         is Result.Loading -> Text("Loading...")
-                        is Result.Success -> Text("Save")
+                        is Result.Success -> Text("Add") // Ganti jadi "Add" kalau sudah sukses cari
                         else -> Text("Search")
+
                     }
                 }
             },
             dismissButton = {
                 if (findFoodData !is Result.Loading) {
-                    TextButton(onClick = { showPopup = false }) {
+                    TextButton(onClick = {
+                        showPopup = false
+                        viewModel.resetFindState() // Reset state saat dismiss
+                    }) {
                         Text("Cancel")
                     }
                 }
@@ -398,7 +448,7 @@ fun ExpandableItem(foodListItem: FoodListItem) {
             IconButton(onClick = { expanded = !expanded }) {
                 Icon(
                     painter = painterResource(
-                        if (expanded) R.drawable.ic_arrow_up else R.drawable.ic_arrow_down
+                        if (expanded) R.drawable.ic_arrow_up else R.drawable.ic_arrow_down // Pastikan resource ID-nya benar
                     ),
                     contentDescription = "Expand/Collapse"
                 )
@@ -413,28 +463,29 @@ fun ExpandableItem(foodListItem: FoodListItem) {
                     .background(Color(0xFFD8D8D8))
                     .padding(16.dp)
             ) {
+                // Pastikan nilai nullable dihandle dengan operator Elvis
                 Text(
-                    text = "Calorie\n${foodListItem.calories?.let { ceil(it).toInt() }} kcal",
+                    text = "Calorie\n${foodListItem.calories?.let { ceil(it).toInt() } ?: 0} kcal",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondary
                 )
                 Text(
-                    text = "Fat\n${foodListItem.fat?.let { ceil(it).toInt() }} g",
+                    text = "Fat\n${foodListItem.fat?.let { ceil(it).toInt() } ?: 0} g",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondary
                 )
                 Text(
-                    text = "Carbs\n${foodListItem.carbohydrate?.let { ceil(it).toInt() }} g",
+                    text = "Carbs\n${foodListItem.carbohydrate?.let { ceil(it).toInt() } ?: 0} g",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondary
                 )
                 Text(
-                    text = "Sugar\n${foodListItem.sugar?.let { ceil(it).toInt() }} g",
+                    text = "Sugar\n${foodListItem.sugar?.let { ceil(it).toInt() } ?: 0} g",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondary
                 )
                 Text(
-                    text = "Protein\n${foodListItem.protein?.let { ceil(it).toInt() }} g",
+                    text = "Protein\n${foodListItem.protein?.let { ceil(it).toInt() } ?: 0} g",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSecondary
                 )
@@ -469,7 +520,7 @@ fun ExpandableAdditionalItem(additionalItem: AdditionalItem) {
             IconButton(onClick = { expanded = !expanded }) {
                 Icon(
                     painter = painterResource(
-                        if (expanded) R.drawable.ic_arrow_up else R.drawable.ic_arrow_down
+                        if (expanded) R.drawable.ic_arrow_up else R.drawable.ic_arrow_down // Pastikan resource ID-nya benar
                     ),
                     contentDescription = "Expand/Collapse"
                 )
@@ -487,6 +538,7 @@ fun ExpandableAdditionalItem(additionalItem: AdditionalItem) {
                         .background(Color(0xFFD8D8D8))
                         .padding(16.dp)
                 ) {
+                    // Pastikan nilai nullable dihandle dengan operator Elvis
                     Text(
                         text = "Calorie\n${additionalItem.info.calories.let { ceil(it).toInt() }} kcal",
                         style = MaterialTheme.typography.bodySmall,

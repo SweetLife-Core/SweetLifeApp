@@ -10,7 +10,7 @@ import okhttp3.MultipartBody
 class ScanFood (
     private val dashboardRepository: DashboardRepository
 ) {
-    suspend operator fun invoke(image:  MultipartBody.Part): LiveData<Result<ScanResponse>> {
+    suspend operator fun invoke(image: MultipartBody.Part): Result<ScanResponse> {
         return dashboardRepository.scanFood(image)
     }
 }

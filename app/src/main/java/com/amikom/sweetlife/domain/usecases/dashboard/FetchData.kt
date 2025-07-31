@@ -8,7 +8,7 @@ import com.amikom.sweetlife.domain.repository.DashboardRepository
 class FetchData (
     private val dashboardRepository: DashboardRepository
 ) {
-    suspend operator fun invoke(): LiveData<Result<DashboardModel>> {
+    suspend operator fun invoke(): Result<DashboardModel> {
         return dashboardRepository.fetchDataDashboard()
     }
 }

@@ -47,13 +47,16 @@ class DashboardViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val result = dashboardUseCases.fetchData.invoke()
-                result.observeForever { dashboardResult ->
-                    _dashboardState.value = dashboardResult
+                if (result is Result.Success) {
+                    _dashboardState.value = result
+                } else {
+                    Log.e("DashboardViewModel", "fetchDashboard: ${result}")
+//                    fetchMockDashboard()
                 }
             } catch (e: Exception) {
                 Log.e("DashboardViewModel", "fetchDashboard: ${e.message}")
 //                _dashboardState.value = Result.Error(e.message ?: "Unexpected Error")
-                fetchMockDashboard()
+//                fetchMockDashboard()
             }
         }
     }

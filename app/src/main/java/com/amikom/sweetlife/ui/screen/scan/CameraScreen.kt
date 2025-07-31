@@ -110,7 +110,6 @@ fun CameraScreen(
                 navController.navigate(Route.ResultScanScreen(jsonData)) {
                     popUpTo<Route.DashboardScreen> { inclusive = false }
                 }
-
             }
         }
 
@@ -184,15 +183,7 @@ fun CameraScreen(
                     if (!isLoading) {
                         isLoading = true
                         capturedImageBitmap?.let { bitmap ->
-                            viewModel.uploadScan(context, bitmap) { success ->
-                                isLoading = false
-                                if (success) {
-                                    capturedImageBitmap = null
-                                    showDialogAwal = false
-                                } else {
-                                    Log.e("CameraScreen", "Upload failed")
-                                }
-                            }
+                            viewModel.uploadScan(context, bitmap)
                         } ?: run {
                             isLoading = false
                             showDialogAwal = false

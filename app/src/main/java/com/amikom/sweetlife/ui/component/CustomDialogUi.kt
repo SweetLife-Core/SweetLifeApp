@@ -91,7 +91,7 @@ fun CustomDialogUI(
                 // Judul opsional
                 title?.let {
                     Text(
-                        color = MaterialTheme.colorScheme.onBackground,
+                        color = Color.Gray,
                         text = it,
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.SemiBold,
@@ -107,7 +107,7 @@ fun CustomDialogUI(
                 // Pesan opsional
                 message?.let {
                     Text(
-                        color = MaterialTheme.colorScheme.onBackground,
+                        color = Color.Gray,
                         text = it,
                         textAlign = TextAlign.Center,
                         modifier = Modifier

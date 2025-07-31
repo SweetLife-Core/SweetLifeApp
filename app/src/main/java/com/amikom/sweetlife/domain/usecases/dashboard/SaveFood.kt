@@ -7,11 +7,12 @@ import com.amikom.sweetlife.data.remote.Result
 import com.amikom.sweetlife.data.remote.dto.scan.FindFoodResponse
 import com.amikom.sweetlife.data.remote.dto.scan.SaveFoodResponse
 import com.amikom.sweetlife.domain.repository.DashboardRepository
+import javax.inject.Inject
 
-class SaveFood (
+class SaveFood @Inject constructor (
     private val dashboardRepository: DashboardRepository
 ) {
-    suspend operator fun invoke(listFood: FoodRequest): LiveData<Result<SaveFoodResponse>> {
+    suspend operator fun invoke(listFood: FoodRequest): Result<SaveFoodResponse>{
         return dashboardRepository.saveFoodRequest(listFood)
     }
 }

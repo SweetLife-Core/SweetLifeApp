@@ -7,7 +7,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.amikom.sweetlife.data.model.DashboardModel
 import com.amikom.sweetlife.data.remote.Result
 import com.amikom.sweetlife.data.remote.dto.scan.ScanResponse
 import com.amikom.sweetlife.domain.usecases.auth.AuthUseCases
@@ -46,24 +45,20 @@ class CameraScanViewModel @Inject constructor(
         _scanState.value = Result.Empty
     }
 
-    fun uploadScan(context: Context, bitmap: Bitmap, onResult: (Boolean) -> Unit) {
+    // Ini yang paling parah, "uploadScan"
+    fun uploadScan(context: Context, bitmap: Bitmap) { // Hapus onResult, biar ViewModel yang urus
+        _scanState.value = Result.Loading // Tambahin ini biar tahu lagi loading
         viewModelScope.launch {
             try {
                 val file = bitmapToFile(context, bitmap, "scan_result.jpg")
                 Log.d("UPLOAD_SCAN", "Uploading file: ${file.name}, Loc: ${file.path}, Size: ${file.length()/1000} KB")
 
-                val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-                val multipartBody = MultipartBody.Part.createFormData("image", file.name, requestFile)
-
-                dashboardUseCases.scanFood(multipartBody).observeForever {
-                    _scanState.value = it
-                }
-
-                onResult(true)
+                val reqFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                val multipartBody = MultipartBody.Part.createFormData("image", file.name, reqFile)
+                _scanState.value = dashboardUseCases.scanFood(multipartBody)
             } catch (e: Exception) {
                 Log.e("UPLOAD_SCAN", "Exception occurred: ${e.message}", e)
                 _scanState.value = Result.Error(e.message ?: "Unknown error")
-                onResult(false)
             }
         }
     }
