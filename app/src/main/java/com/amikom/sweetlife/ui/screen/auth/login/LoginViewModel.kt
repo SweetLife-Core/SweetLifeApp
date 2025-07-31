@@ -2,6 +2,7 @@ package com.amikom.sweetlife.ui.screen.auth.login
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import com.amikom.sweetlife.data.model.UserModel
 import com.amikom.sweetlife.data.remote.Result
@@ -41,25 +42,23 @@ class LoginViewModel @Inject constructor(
 
     private suspend fun loginProcess(email: String, password: String) {
         _loginResult.value = Result.Loading
-
-        authUseCases.login(email, password).observeForever { result ->
-            if (result is Result.Success<UserModel>) {
-                Log.d("BIJIX_K", result.data.toString())
-                viewModelScope.launch {
-                    authUseCases.saveUserInfoLogin(result.data)
-                    // Pastikan data tersimpan sek bolo
-                    authUseCases.checkIsUserLogin().collect { isLoggedIn ->
-                        _isUserLoggedIn.value = isLoggedIn
-                        if (isLoggedIn) {
-                            _isUserHasHealth.value = result.data.hasHealthProfile
-                            delay(150)
-                            _loginResult.value = result
+        authUseCases.login(email, password)
+            .asFlow()
+            .collectLatest { result ->
+                when (result) {
+                    is Result.Success -> {
+                        authUseCases.saveUserInfoLogin(result.data)
+                        authUseCases.checkIsUserLogin().collect { isLoggedIn ->
+                            _isUserLoggedIn.value = isLoggedIn
+                            if (isLoggedIn) {
+                                _isUserHasHealth.value = result.data.hasHealthProfile
+                                _loginResult.value = result
+                            }
                         }
                     }
+                    else -> _loginResult.value = result
                 }
-            } else {
-                _loginResult.value = result
             }
-        }
     }
+
 }

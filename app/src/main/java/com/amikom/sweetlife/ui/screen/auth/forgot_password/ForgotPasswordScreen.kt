@@ -65,6 +65,8 @@ fun ForgotPasswordScreen(
     var hasShownError by remember { mutableStateOf(false) }
     var hasShownSuccess by remember { mutableStateOf(false) }
 
+
+
     val showDialog = remember { mutableStateOf(false) }
     var icon by remember { mutableStateOf(R.drawable.baseline_notifications_none_24) }
     var title by remember { mutableStateOf("Failed!") }
@@ -259,12 +261,4 @@ fun ForgotPasswordScreen(
         if (forgotPasswordResult !is Result.Success) hasShownSuccess = false
     }
 
-    LaunchedEffect(isUserLoggedIn) {
-        if (isUserLoggedIn) {
-            navController.navigate(Route.ForgotPasswordScreen) {
-                popUpTo<Route.HomeScreen> { inclusive = true }
-                launchSingleTop = true
-            }
-        }
-    }
 }

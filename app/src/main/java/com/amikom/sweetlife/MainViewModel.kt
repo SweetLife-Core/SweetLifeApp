@@ -18,6 +18,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -52,27 +53,19 @@ class MainViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            authUseCases.checkIsUserLogin().collect { isLoggedIn ->
-                _isUserLoggedIn.value = isLoggedIn
+            val isLoggedIn = authUseCases.checkIsUserLogin().first()
+            val shouldStartFromHomeScreen = appEntryUseCases.readAppEntry().first()
+            val hasHealthProfile = authUseCases.checkHasHealthProfile().first()
 
-                appEntryUseCases.readAppEntry().collect { shouldStartFromHomeScreen ->
-
-                    authUseCases.checkHasHealthProfile().collect { hasHealthProfile ->
-                        _startDestination = when {
-                            isLoggedIn && hasHealthProfile && shouldStartFromHomeScreen -> Route.DashboardScreen
-                            isLoggedIn && hasHealthProfile && !shouldStartFromHomeScreen -> Route.DashboardScreen
-                            isLoggedIn && !hasHealthProfile && !shouldStartFromHomeScreen -> Route.DashboardScreen
-                            isLoggedIn && !hasHealthProfile && shouldStartFromHomeScreen -> Route.DashboardScreen
-                            !isLoggedIn && !hasHealthProfile && !shouldStartFromHomeScreen -> Route.OnboardingScreen
-                            else -> Route.LoginScreen
-                        }
-                        Log.d("BIJIX_INIT", "LOGIN: ${isUserLoggedIn.value} | HOME: $shouldStartFromHomeScreen | HEALTH: $hasHealthProfile | ROUTE: $startDestination")
-
-                        delay(500L)
-                        splashCondition = false
-                    }
-                }
+            _startDestination = when {
+                isLoggedIn && hasHealthProfile -> Route.DashboardScreen
+                isLoggedIn && !hasHealthProfile -> Route.AssessmentScreen
+                !isLoggedIn && shouldStartFromHomeScreen -> Route.LoginScreen
+                else -> Route.OnboardingScreen
             }
+
+            delay(500L)
+            splashCondition = false
         }
     }
 }

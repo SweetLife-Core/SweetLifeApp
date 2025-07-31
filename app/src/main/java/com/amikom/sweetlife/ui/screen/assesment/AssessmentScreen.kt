@@ -87,10 +87,16 @@ fun DropdownSelector(
                 .fillMaxWidth()
                 .height(56.dp),
             shape = RoundedCornerShape(15.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFFF5F5F5),
-                contentColor = MaterialTheme.colorScheme.onBackground
+            colors = ButtonColors(
+                Color.Transparent,
+                MaterialTheme.colorScheme.primary,
+                Color.Gray,
+                MaterialTheme.colorScheme.onBackground
             ),
+//            colors = ButtonDefaults.buttonColors(
+//                containerColor = Color(0xFFF5F5F5),
+//                contentColor = MaterialTheme.colorScheme.onBackground
+//            ),
             border = BorderStroke(1.dp, Color.Gray),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
         ) {
@@ -101,7 +107,7 @@ fun DropdownSelector(
                 Text(
                     text = selectedValue.ifEmpty { placeholder },
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
+                    color = Color.Gray,
                     modifier = Modifier.weight(1f)
                 )
                 Icon(
@@ -345,8 +351,6 @@ fun PersonalDataScreen(viewModel: AssessmentViewModel) {
             )
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
-
         // Full Name Field
         OutlinedTextField(
             value = viewModel.personalData.fullName,
@@ -357,7 +361,8 @@ fun PersonalDataScreen(viewModel: AssessmentViewModel) {
                 Text(
                     "Full Name",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
+                    color = Color.Gray,
+                    textAlign = TextAlign.Left
                 )
             },
             singleLine = true
@@ -372,9 +377,7 @@ fun PersonalDataScreen(viewModel: AssessmentViewModel) {
                 viewModel.personalData = viewModel.personalData.copy(dateOfBirth = it)
             }
         )
-
         Spacer(modifier = Modifier.height(8.dp))
-
         // Gender Picker Button
         GenderPickerButton(
             selectedGender = viewModel.personalData.gender,
@@ -389,7 +392,6 @@ fun PersonalDataScreen(viewModel: AssessmentViewModel) {
 fun DatePickerButton(date: String, onDateSelected: (String) -> Unit) {
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
-
     // Default date values
     val year = calendar.get(Calendar.YEAR)
     val month = calendar.get(Calendar.MONTH)
@@ -416,7 +418,8 @@ fun DatePickerButton(date: String, onDateSelected: (String) -> Unit) {
         },
         modifier = Modifier
             .fillMaxWidth()
-            .width(16.dp),
+            .width(16.dp)
+            .height(52.dp),
         shape = RoundedCornerShape(15.dp),
         colors = ButtonColors(
             Color.Transparent,
@@ -427,10 +430,10 @@ fun DatePickerButton(date: String, onDateSelected: (String) -> Unit) {
         border = BorderStroke(1.dp, Color.Gray)
     ) {
         Text(
-            textAlign = TextAlign.Start,
+            textAlign = TextAlign.Left,
             text = if (selectedDate.isEmpty()) "Select Date of Birth" else "Born Date: $selectedDate",
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.Black
+            color = Color.Gray
         )
     }
 }
@@ -444,6 +447,7 @@ fun GenderPickerButton(selectedGender: String, onGenderSelected: (String) -> Uni
         onClick = { expanded = true },
         modifier = Modifier
             .fillMaxWidth()
+            .height(52.dp)
             .width(16.dp),
         shape = RoundedCornerShape(15.dp),
         colors = ButtonColors(
@@ -457,8 +461,8 @@ fun GenderPickerButton(selectedGender: String, onGenderSelected: (String) -> Uni
         Text(
             text = if (selectedGender.isEmpty()) "Select Gender" else "Gender: $selectedGender",
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.Black,
-            textAlign = TextAlign.Start,
+            textAlign = TextAlign.Left,
+            color = Color.Gray
         )
     }
 
@@ -539,7 +543,7 @@ fun DiabetesStatusScreen(viewModel: AssessmentViewModel) {
                         .padding(vertical = 8.dp)
                         .border(
                             width = 1.dp,
-                            color = if (selectedOption == option) Color.Blue else MainBlue,
+                            color = Color.Gray,
                             shape = RoundedCornerShape(15.dp)
                         )
                         .clickable {
@@ -560,7 +564,7 @@ fun DiabetesStatusScreen(viewModel: AssessmentViewModel) {
                         Text(
                             text = option,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = if (selectedOption == option) MainBlue else Color.Gray,
+                            color = Color.Gray,
                             modifier = Modifier.weight(1f)
                         )
                         RadioButton(
@@ -580,7 +584,7 @@ fun DiabetesStatusScreen(viewModel: AssessmentViewModel) {
                                 }
                             },
                             colors = RadioButtonDefaults.colors(
-                                selectedColor = MainBlue,
+                                selectedColor = Color.Gray,
                                 unselectedColor = Color.Gray
                             )
                         )
@@ -666,7 +670,15 @@ fun ActivityScreen1(viewModel: AssessmentViewModel) {
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Gray,
+            modifier = Modifier.fillMaxWidth(),
             style = MaterialTheme.typography.titleLarge
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "Complete your data to find out your assessment results",
+            fontSize = 16.sp,
+            color = Color.Gray,
+            style = MaterialTheme.typography.bodyLarge
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -782,6 +794,7 @@ fun Activity2Select(
         onClick = { expanded = true },
         modifier = Modifier
             .fillMaxWidth()
+            .height(52.dp)
             .width(16.dp),
         shape = RoundedCornerShape(15.dp),
         colors = ButtonColors(
@@ -795,7 +808,7 @@ fun Activity2Select(
         Text(
             text = selectedType.ifEmpty { title },
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.Black,
+            color = Color.Gray,
             textAlign = TextAlign.Start,
         )
     }

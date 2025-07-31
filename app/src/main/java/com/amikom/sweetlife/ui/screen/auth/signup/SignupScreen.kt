@@ -358,16 +358,37 @@ fun SignupScreen(
     }
 
     LaunchedEffect(signUpResult) {
-        if (signUpResult !is Result.Error) hasShownError = false
-        if (signUpResult !is Result.Success) hasShownSuccess = false
-    }
-
-    LaunchedEffect(isUserLoggedIn) {
-        if (isUserLoggedIn) {
-            navController.navigate(Route.DashboardScreen) {
-                popUpTo<Route.SignUpScreen> { inclusive = true }
-                launchSingleTop = true
+        when (signUpResult) {
+            is Result.Success -> {
+                showDialog.value = true
+                icon = R.drawable.baseline_check_circle_outline_24
+                title = "Success!"
+                message = "Account created successfully! Please verify your email."
+                buttons = listOf(
+                    "Ok" to {
+                        showDialog.value = false
+                        navController.navigate(Route.LoginScreen) {
+                            popUpTo(Route.SignUpScreen) { inclusive = true }
+                        }
+                    }
+                )
             }
+
+            is Result.Error -> {
+                val errorMessage = (signUpResult as Result.Error).error
+                showDialog.value = true
+                icon = R.drawable.baseline_info_outline_24
+                title = "Signup Failed!"
+                message = when {
+                    errorMessage.contains("Key:") -> "Make sure to fill all fields!"
+                    errorMessage == "email already registered" -> "Email already registered!"
+                    errorMessage == "Passwords do not match" -> "Passwords do not match."
+                    else -> errorMessage
+                }
+                buttons = listOf("Ok" to { showDialog.value = false })
+            }
+
+            else -> Unit
         }
     }
 }

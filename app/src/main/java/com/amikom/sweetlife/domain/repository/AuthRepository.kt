@@ -15,7 +15,7 @@ interface AuthRepository {
 
     suspend fun changePassword(oldPassword: String, newPassword: String)
 
-    suspend fun forgotPassword(email: String) : LiveData<Result<ForgotPasswordModel>>
+    fun forgotPassword(email: String): Flow<Result<ForgotPasswordModel>>
 
     suspend fun logout() : LiveData<Result<Boolean>>
 

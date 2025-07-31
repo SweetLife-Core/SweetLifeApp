@@ -40,12 +40,6 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
 
-//        val isDarkMode = viewModel.isDarkMode.value
-//        val isDarkMode = remember { mutableStateOf(false) }
-//        viewModel.isDarkMode.observeForever{
-//            isDarkMode = it
-//            Log.d("BIJIX_THEME", it.toString())
-//        }
         var isDarkMode = false
 
         viewModel.isDarkMode.observeForever { isDark ->
@@ -62,26 +56,5 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-
-//        setContent {
-//            SweetLifeTheme(darkTheme = isDarkMode) {
-
-//                Jangan dipake deprecated anjer
-//                val isSystemInDarkMode = isSystemInDarkTheme()
-//                val systemController = rememberSystemUiController()
-//
-//                SideEffect {
-//                    systemController.setSystemBarsColor(
-//                        color = Color.Transparent,
-//                        darkIcons = !isSystemInDarkMode
-//                    )
-//                }
-
-//                Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
-//                    val startDestination = viewModel.startDestination
-//                    NavGraph(startDestination = startDestination)
-//                }
-//            }
-//        }
     }
 }

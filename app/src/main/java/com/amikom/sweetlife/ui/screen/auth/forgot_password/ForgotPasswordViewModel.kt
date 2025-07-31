@@ -25,14 +25,21 @@ class ForgotPasswordViewModel @Inject constructor(
     fun onEvent(event: ForgotPasswordEvent) {
         when (event) {
             is ForgotPasswordEvent.ForgotPassword -> {
-                viewModelScope.launch {
-                    forgotPasswordProcess(event.email)
-                }
+                forgotPassword(event.email)
             }
         }
     }
 
-    init {
+    private fun forgotPassword(email: String) {
+        viewModelScope.launch {
+            _forgotPasswordResult.value = Result.Loading
+            authUseCases.forgotPassword(email).collect { result ->
+                _forgotPasswordResult.value = result
+            }
+        }
+    }
+
+    fun checkLoginStatus() {
         viewModelScope.launch {
             authUseCases.checkIsUserLogin().collect { isLoggedIn ->
                 _isUserLoggedIn.value = isLoggedIn
@@ -40,11 +47,8 @@ class ForgotPasswordViewModel @Inject constructor(
         }
     }
 
-    private suspend fun forgotPasswordProcess(email: String) {
-        _forgotPasswordResult.value = Result.Loading
-
-        authUseCases.forgotPassword(email).observeForever { result ->
-            _forgotPasswordResult.value = result
-        }
+    fun resetForgotPasswordResult() {
+        _forgotPasswordResult.value = Result.Empty
     }
+
 }
