@@ -6,6 +6,7 @@ import com.amikom.sweetlife.data.remote.dto.HistoryResponse.HistoryResponse
 import com.amikom.sweetlife.data.remote.dto.dashboard.DashboardResponse
 import com.amikom.sweetlife.data.remote.dto.health_profile.CreateHealthResponse
 import com.amikom.sweetlife.data.remote.dto.health_profile.HealthProfileResponse
+import com.amikom.sweetlife.data.remote.dto.profile.ProfileFotoResponse
 import com.amikom.sweetlife.data.remote.dto.profile.ProfileResponse
 import com.amikom.sweetlife.data.remote.dto.profile.UpdateProfileResponse
 import com.amikom.sweetlife.data.remote.dto.rekomen.RekomenResponse
@@ -60,8 +61,8 @@ interface FeatureApiService {
     suspend fun getHistory(): Response<HistoryResponse>
 
     @Multipart
-    @PUT("${Constants.API_VERSION}users/profile")
-    suspend fun uploadProfileImage(@Part image: MultipartBody.Part): ProfileResponse
+    @PUT("${Constants.API_VERSION}users/profile/image")
+    suspend fun uploadProfileImage(@Part image: MultipartBody.Part): ProfileFotoResponse
 
     @Multipart
     @POST("${Constants.API_VERSION}food/scan")

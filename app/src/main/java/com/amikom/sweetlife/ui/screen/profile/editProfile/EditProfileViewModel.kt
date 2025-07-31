@@ -191,7 +191,7 @@ class EditProfileViewModel @Inject constructor(
 
             // Buat request body
             val requestBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
-            return MultipartBody.Part.createFormData("image", file.name, requestBody)
+            return MultipartBody.Part.createFormData("profile_picture", file.name, requestBody)
         } catch (e: Exception) {
             Log.e("BitmapConversion", "Error converting bitmap", e)
             throw RuntimeException("Failed to convert bitmap: ${e.message}")
@@ -228,30 +228,20 @@ class EditProfileViewModel @Inject constructor(
                     _imageUploadState.value = ImageUploadState.Error("Bitmap is null")
                     return@launch
                 }
-                // Kompresi dan konversi bitmap ke multipart
                 val imagePart = bitmap.toMultipartBody(context)
 
                 // Upload gambar
                 val response = featureApiService.uploadProfileImage(imagePart)
                 Log.d("EditProfileViewModel", "Upload Response: $response")
 
-                if (response.status == true && response.data?.photoProfile != null) {
-                    Log.d("EditProfileViewModel", "uploadProfileImage: ${response.data?.photoProfile}")
-                    // Update profile image URL
-                    val imageUrl = response.data.photoProfile
-                    _userProfile.value = _userProfile.value?.copy(
-                        image = response.data.photoProfile
-                    )
-
-                    _imageUploadState.value = ImageUploadState.Success(
-                        response.data.photoProfile
-                    )
+                if (response.status == true) {
+                    _imageUploadState.value = ImageUploadState.Success(null)
+                    Log.d("EditProfileViewModel", "Image upload successful. Fetching updated profile data...")
+                    fetchProfileData()
                 } else {
-                    Log.d("EditProfileViewModel", "uploadProfileImage: ${response.data?.photoProfile}")
-                    // Set state error dengan pesan dari response
-                    _imageUploadState.value = ImageUploadState.Error(
-                        response.data?.photoProfile ?: "Failed to upload image"
-                    )
+                    val errorMessage = response.message ?: "Failed to upload image."
+                    _imageUploadState.value = ImageUploadState.Error(errorMessage)
+                    Log.e("EditProfileViewModel", "Failed to upload image: $errorMessage")
                 }
             } catch (e: Exception) {
                 Log.e("EditProfileViewModel", "uploadProfileImage: ${e.message}")

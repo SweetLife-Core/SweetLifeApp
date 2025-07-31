@@ -1,5 +1,6 @@
 package com.amikom.sweetlife.ui.screen.profile.editProfile
 
+import android.Manifest
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -54,6 +55,9 @@ import com.amikom.sweetlife.ui.component.ConfirmSave
 import com.amikom.sweetlife.ui.component.CustomDialog
 import com.amikom.sweetlife.ui.screen.profile.UserProfile
 import com.amikom.sweetlife.util.countAgeFromDate
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
@@ -61,6 +65,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 
+@OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EditProfileScreen(
@@ -130,11 +135,12 @@ fun EditProfileScreen(
                 Toast.makeText(
                     context,
                     state.message,
-                    Toast.LENGTH_SHORT
+                    Toast.LENGTH_SHORT,
                 ).show()
 
                 // Optional: Reset state
                 viewModel.resetImageUploadState()
+                Log.e("Error", "Failed to upload image: ${state.message}")
             }
 
             is EditProfileViewModel.ImageUploadState.Idle -> {
@@ -142,7 +148,6 @@ fun EditProfileScreen(
             }
         }
     }
-
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -150,14 +155,14 @@ fun EditProfileScreen(
             try {
                 val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
                 viewModel.uploadProfileImage(bitmap, context)
-                Log.e("Error", "Failed to load image. Please try again.${bitmap}")
             } catch (e: Exception) {
                 Toast.makeText(context, "Failed to load image", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    // Launcher untuk kamera
+    val cameraPermissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
+
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap ->
@@ -165,6 +170,7 @@ fun EditProfileScreen(
             viewModel.uploadProfileImage(it, context)
         }
     }
+
 
     var showPickerDialog by remember { mutableStateOf(false) }
 
@@ -185,8 +191,13 @@ fun EditProfileScreen(
                     }
                     Button(
                         onClick = {
-                            showPickerDialog = false
-                            cameraLauncher.launch(null)
+                            if (cameraPermissionState.status.isGranted) {
+                                cameraLauncher.launch(null)
+                            }
+                            else {
+                                cameraPermissionState.launchPermissionRequest()
+                            }
+
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {

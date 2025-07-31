@@ -1,6 +1,7 @@
 package com.amikom.sweetlife.data.remote.repository
 
 import android.util.Log
+import com.amikom.sweetlife.data.remote.dto.profile.ProfileFotoResponse
 import com.amikom.sweetlife.data.remote.dto.profile.ProfileResponse
 import com.amikom.sweetlife.data.remote.json_request.ProfileRequest
 import com.amikom.sweetlife.data.remote.retrofit.FeatureApiService
@@ -13,7 +14,7 @@ class EditProfileRepositoryImpl @Inject constructor(
     private val apiService: FeatureApiService
 ) : EditProfileRepository {
 
-    override suspend fun uploadProfileImage(imagePart: MultipartBody.Part): ProfileResponse {
+    override suspend fun uploadProfileImage(imagePart: MultipartBody.Part): ProfileFotoResponse {
         return apiService.uploadProfileImage(imagePart)
     }
 

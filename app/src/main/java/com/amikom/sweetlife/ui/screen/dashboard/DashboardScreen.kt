@@ -183,7 +183,6 @@ fun DashboardScreenUI(data: Data, navController: NavController) {
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
-
         ) {
             UserHeader(
                 name = data.user.name,
