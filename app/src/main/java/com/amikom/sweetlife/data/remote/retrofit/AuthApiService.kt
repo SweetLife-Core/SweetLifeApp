@@ -9,9 +9,11 @@ import com.amikom.sweetlife.data.remote.json_request.ForgotPasswordRequest
 import com.amikom.sweetlife.data.remote.json_request.LoginRequest
 import com.amikom.sweetlife.data.remote.json_request.RefreshTokenRequest
 import com.amikom.sweetlife.data.remote.json_request.RegisterRequest
+import com.amikom.sweetlife.ui.screen.History.ApiResponse
 import com.amikom.sweetlife.util.Constants
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.Header
 import retrofit2.http.POST
 
 interface AuthApiService {
@@ -45,6 +47,9 @@ interface AuthApiService {
     ) : Response<RefreshTokenResponse>
 
     @POST("${Constants.API_VERSION}auth/logout")
-    suspend fun logout() : Response<LogoutResponse>
+    suspend fun logout(
+        @Header("Authorization") token: String
+    ): Response<ApiResponse>
+
 
 }

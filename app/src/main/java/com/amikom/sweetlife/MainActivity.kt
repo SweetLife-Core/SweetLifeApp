@@ -49,6 +49,15 @@ class MainActivity : ComponentActivity() {
             // Render UI dengan tema baru
             setContent {
                 SweetLifeTheme(darkTheme = isDarkMode) {
+                    val systemUiController = rememberSystemUiController()
+                    val useDarkIcons = !isDarkMode
+
+                    SideEffect {
+                        systemUiController.setStatusBarColor(
+                            color = Color.Transparent,
+                            darkIcons = useDarkIcons
+                        )
+                    }
                     Box(modifier = Modifier.background(color = MaterialTheme.colorScheme.background)) {
                         val startDestination = viewModel.startDestination
                         NavGraph(startDestination = startDestination)

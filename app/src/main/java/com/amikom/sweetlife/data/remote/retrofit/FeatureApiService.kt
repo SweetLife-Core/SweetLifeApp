@@ -6,6 +6,8 @@ import com.amikom.sweetlife.data.remote.dto.HistoryResponse.HistoryResponse
 import com.amikom.sweetlife.data.remote.dto.dashboard.DashboardResponse
 import com.amikom.sweetlife.data.remote.dto.health_profile.CreateHealthResponse
 import com.amikom.sweetlife.data.remote.dto.health_profile.HealthProfileResponse
+import com.amikom.sweetlife.data.remote.dto.minicourse.MiniCourseResponse
+import com.amikom.sweetlife.data.remote.dto.minigrocery.GroceryResponse
 import com.amikom.sweetlife.data.remote.dto.profile.ProfileFotoResponse
 import com.amikom.sweetlife.data.remote.dto.profile.ProfileResponse
 import com.amikom.sweetlife.data.remote.dto.profile.UpdateProfileResponse
@@ -67,6 +69,13 @@ interface FeatureApiService {
     @Multipart
     @POST("${Constants.API_VERSION}food/scan")
     suspend fun foodScan(@Part image: MultipartBody.Part): Response<ScanResponse>
+
+    @GET("${Constants.API_VERSION}minicourse/") // Pastikan endpoint ini sesuai!
+    suspend fun getMiniCourses(): Response<MiniCourseResponse>
+
+    @GET("${Constants.API_VERSION}minigrocery/")
+    suspend fun getMiniGrocery(): Response<GroceryResponse>
+
 
 //    @Multipart
 //    @POST("upload")

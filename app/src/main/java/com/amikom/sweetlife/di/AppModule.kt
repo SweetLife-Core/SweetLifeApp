@@ -3,6 +3,7 @@ package com.amikom.sweetlife.di
 import android.app.Application
 import android.content.Context
 import com.amikom.sweetlife.BuildConfig
+import com.amikom.sweetlife.data.datastore.DataStoreManager
 import com.amikom.sweetlife.data.manager.LocalAuthUserManagerImpl
 import com.amikom.sweetlife.data.manager.LocalUserManagerImpl
 import com.amikom.sweetlife.data.remote.interceptor.AuthInterceptor
@@ -92,9 +93,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideLocalAuthUserManager(
-        application: Application
+        application: Application,
+        dataStoreManager: DataStoreManager
     ): LocalAuthUserManager {
-        return LocalAuthUserManagerImpl(application)
+        return LocalAuthUserManagerImpl(application, dataStoreManager)
     }
 
     @Provides
@@ -161,6 +163,7 @@ object AppModule {
         appExecutors: AppExecutors
     ): DashboardRepository = DashboardRepositoryImpl(featureApiService, appExecutors)
 
+
     @Provides
     @Singleton
     fun provideProfileRepository(
@@ -186,7 +189,8 @@ object AppModule {
             saveNewToken = SaveNewToken(localAuthUserManager = localAuthUserManager),
             checkHasHealthProfile = CheckHasHealthProfile(localAuthUserManager = localAuthUserManager),
             saveHealthProfile = SaveHealthProfile(localAuthUserManager = localAuthUserManager),
-            logout = LogoutAction(authRepository = authRepository),
+            logout = LogoutAction(authRepository = authRepository,
+                                  localAuthUserManager = localAuthUserManager),
             readUserId = com.amikom.sweetlife.domain.usecases.auth.ReadUserId(localAuthUserManager = localAuthUserManager)
         )
     }
@@ -202,6 +206,14 @@ object AppModule {
             findFood = FindFood(dashboardRepository = dashboardRepository),
             saveFood = SaveFood(dashboardRepository = dashboardRepository)
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideDataStoreManager(
+        @ApplicationContext context: Context
+    ): DataStoreManager {
+        return DataStoreManager(context)
     }
 
     @Provides

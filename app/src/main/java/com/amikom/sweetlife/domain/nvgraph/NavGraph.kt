@@ -33,6 +33,7 @@ import com.amikom.sweetlife.ui.screen.auth.login.LoginScreen
 import com.amikom.sweetlife.ui.screen.auth.login.LoginViewModel
 import com.amikom.sweetlife.ui.screen.auth.signup.SignUpViewModel
 import com.amikom.sweetlife.ui.screen.auth.signup.SignupScreen
+import com.amikom.sweetlife.ui.screen.grocery.GroceryDetailScreen
 import com.amikom.sweetlife.ui.screen.grocery.GroceryScreen
 import com.amikom.sweetlife.ui.screen.home.HomeScreen
 import com.amikom.sweetlife.ui.screen.minicourse.MiniCourseScreen
@@ -174,6 +175,10 @@ fun NavGraph(
         composable<Route.CameraScreen> {
             val viewModel: CameraScanViewModel = hiltViewModel()
             CameraScreen(viewModel = viewModel, onBackPressed = { navController.popBackStack() }, navController = navController)
+        }
+
+        composable<Route.GroceryDetailScreen> { backStackEntry ->
+            GroceryDetailScreen(navController = navController)
         }
 
         composable<Route.ResultScanScreen> {

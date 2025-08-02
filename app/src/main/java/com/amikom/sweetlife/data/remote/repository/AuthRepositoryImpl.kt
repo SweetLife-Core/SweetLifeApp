@@ -1,5 +1,6 @@
 package com.amikom.sweetlife.data.remote.repository
 
+import android.R.id.message
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
@@ -15,9 +16,12 @@ import com.amikom.sweetlife.data.remote.json_request.RegisterRequest
 import com.amikom.sweetlife.data.remote.retrofit.AuthApiService
 import com.amikom.sweetlife.domain.manager.LocalAuthUserManager
 import com.amikom.sweetlife.domain.repository.AuthRepository
+import com.amikom.sweetlife.domain.usecases.auth.AuthUseCases
 import com.amikom.sweetlife.util.AppExecutors
+import com.amikom.sweetlife.util.Constants
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 
 class AuthRepositoryImpl(
@@ -145,46 +149,60 @@ class AuthRepositoryImpl(
     }
 
 
+    private var isLoggingOut = false
+
     override suspend fun logout(): LiveData<Result<Boolean>> {
         val result = MediatorLiveData<Result<Boolean>>()
+
+        if (isLoggingOut) {
+            result.value = Result.Error("Logout is already in progress.")
+            return result
+        }
+
+        isLoggingOut = true
         result.value = Result.Loading
 
         try {
-            // Perform API call
-            val response = authApiService.logout()
+            val token = "Bearer ${localAuthUserManager.getAllToken()
+                .firstOrNull()
+                ?.find { it.first == Constants.USER_TOKEN }
+                ?.second.orEmpty()}"
+
+            if (token == "Bearer ") {
+                result.value = Result.Error("Access token not found.")
+                return result
+            }
+
+            val response = authApiService.logout(token)
 
             if (response.isSuccessful) {
-                // Parse response body
-                val registerStatus = response.body()?.status ?: false
-                val messageBody = response.body()?.message ?: "Server Error"
-
-                if(registerStatus && messageBody == "action success") {
-                    localAuthUserManager.logout()
-
-                    // Update result on main thread
-                    appExecutors.mainThread.execute {
-                        result.value = Result.Success(data = true)
-                    }
+                val status = response.body()?.status ?: false
+                if (status == true) {
+                    Log.d("AuthRepositoryImpl", "Logout successful")
+                    result.value = Result.Success(true)
                 } else {
-                    throw Exception(messageBody)
+                    result.value = Result.Error("Logout failed from server.")
                 }
+                // Selalu hapus token lokal setelah response diterima (sukses/gagal)
+                localAuthUserManager.logout()
             } else {
-                // Handle error response
-                val errorBody = Gson().fromJson(response.errorBody()?.string(), ErrorResponse::class.java)
-                val message = errorBody?.error ?: response.message()
-                appExecutors.mainThread.execute {
-                    result.value = Result.Error(message)
-                }
+                val error = Gson().fromJson(response.errorBody()?.string(), ErrorResponse::class.java)
+                val message = error?.error ?: response.message()
+                result.value = Result.Error(message)
+                // Selalu hapus token lokal setelah response diterima (sukses/gagal)
+                localAuthUserManager.logout()
             }
+
         } catch (e: Exception) {
-            // Handle exceptions
-            appExecutors.mainThread.execute {
-                result.value = e.message?.let { Result.Error(it) }
-            }
+            result.value = Result.Error(e.message ?: "Unexpected error")
+        } finally {
+            isLoggingOut = false
         }
 
         return result
     }
+
+
 
     override suspend fun refreshToken(refreshToken: String): Result<NewTokenModel> {
         return try {

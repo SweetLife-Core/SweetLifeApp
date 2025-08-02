@@ -1,6 +1,7 @@
 package com.amikom.sweetlife.data.manager
 
 import android.content.Context
+import com.amikom.sweetlife.data.datastore.dataStore
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -40,7 +41,6 @@ class LocalUserManagerImpl(
     }
 }
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = USER_SETTINGS)
 
 private object UserSettingsKeys {
     val APP_ENTRY = booleanPreferencesKey(name =  Constants.APP_ENTRY)

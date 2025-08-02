@@ -317,9 +317,9 @@ fun DashboardRekomendasiSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.bapak), // Use your course icon
+                    painter = painterResource(id = R.drawable.img_into_3), // Use your course icon
                     contentDescription = "Mini Course",
-                    modifier = Modifier.size(40.dp)
+                    modifier = Modifier.size(60.dp)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Column {

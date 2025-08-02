@@ -7,11 +7,13 @@ import com.amikom.sweetlife.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 
 class LogoutAction(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val localAuthUserManager: com.amikom.sweetlife.domain.manager.LocalAuthUserManager
 ) {
 
     suspend operator fun invoke(): LiveData<Result<Boolean>> {
-        return authRepository.logout()
+        val result = authRepository.logout()
+        localAuthUserManager.clearUserData()
+        return result
     }
-
 }

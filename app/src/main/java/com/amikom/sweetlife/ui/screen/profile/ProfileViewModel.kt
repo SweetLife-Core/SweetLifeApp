@@ -78,6 +78,7 @@ class ProfileViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
+            val result = authUseCases.logout()
             authUseCases.logout()
         }
     }

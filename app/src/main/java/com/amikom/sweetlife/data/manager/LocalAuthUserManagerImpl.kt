@@ -8,20 +8,24 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.amikom.sweetlife.data.datastore.DataStoreManager
 import com.amikom.sweetlife.data.model.NewTokenModel
 import com.amikom.sweetlife.data.model.UserModel
 import com.amikom.sweetlife.domain.manager.LocalAuthUserManager
 import com.amikom.sweetlife.util.Constants
 import com.amikom.sweetlife.util.Constants.LOCAL_USER_INFO
 import com.amikom.sweetlife.util.Constants.USER_REFRESH_TOKEN
+import com.amikom.sweetlife.util.Constants.USER_SETTINGS
 import com.amikom.sweetlife.util.Constants.USER_TOKEN
 import kotlinx.coroutines.flow.Flow
+import com.amikom.sweetlife.data.datastore.dataStore
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class LocalAuthUserManagerImpl @Inject constructor(
-    private val context: Context
+    private val context: Context,
+    private val dataStoreManager: DataStoreManager
 ) : LocalAuthUserManager {
     override suspend fun saveInfoLogin(userModel: UserModel) {
         Log.d("LocalAuthUserManagerImpl", "Saving user info: ${userModel.name}, ID: ${userModel.id}")
@@ -49,6 +53,14 @@ class LocalAuthUserManagerImpl @Inject constructor(
             pref[LocalUserInfoKeys.USER_HAS_HEALTH_PROFILE] = hasHealth
         }
     }
+
+    override suspend fun clearUserData() {
+        dataStoreManager.setIsUserLoggedIn(false)
+        dataStoreManager.clearAccessToken()
+        dataStoreManager.clearRefreshToken()
+        dataStoreManager.setHasHealthProfile(false)
+    }
+
 
     override fun readHasHealth(): Flow<Boolean> {
         return context.dataStore.data.map { preferences ->
@@ -84,7 +96,6 @@ class LocalAuthUserManagerImpl @Inject constructor(
 
 }
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = LOCAL_USER_INFO)
 
 private object LocalUserInfoKeys {
     val USER_ID = stringPreferencesKey(name = Constants.USER_ID)
